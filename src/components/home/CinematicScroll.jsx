@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 
 const CinematicScroll = () => {
   useEffect(() => {
-    // Crucial: Return early on mobile. Attaching touchmove with passive:false 
-    // destroys hardware-accelerated smooth scrolling on iOS and Android.
-    if (window.innerWidth < 768) return;
+    // Crucial: Return early on ANY touch device or mobile screen to allow 
+    // native, hardware-accelerated smooth scrolling.
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (window.innerWidth < 1024 || isTouchDevice) return;
 
     let isTweening = false;
     let touchStartY = 0;
@@ -69,37 +70,14 @@ const CinematicScroll = () => {
       }
     };
 
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      // Prevent native scroll on the document completely to orchestrate sliding effect
-      e.preventDefault();
-    };
-
-    const handleTouchEnd = (e) => {
-      if (isTweening) return;
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchStartY - touchEndY;
-      
-      if (Math.abs(deltaY) > 30) {
-        smoothScrollTo(getTargetTop(deltaY > 0 ? 1 : -1));
-      }
-    };
-
+    // We only register mouse wheel and keyboard. Touch events are
+    // completely omitted because touch devices are handled by the native browser.
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeydown, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeydown);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 
