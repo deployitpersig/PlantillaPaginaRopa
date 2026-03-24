@@ -57,8 +57,8 @@ const Hero = () => {
           ════════════════════════════════ */}
       <div className="flex flex-col md:hidden">
 
-        {/* Imagen completa — aspect ratio 3:4 para mostrar el modelo entero */}
-        <div className="relative w-full" style={{ aspectRatio: '3 / 4' }}>
+        {/* Imagen más pequeña (cuadrada) para que el botón entre en pantalla sin scroll */}
+        <div className="relative w-full aspect-square">
           {slides.map((slide, index) => (
             <img
               key={slide.id}
