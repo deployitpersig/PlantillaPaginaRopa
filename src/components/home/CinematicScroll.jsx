@@ -2,9 +2,6 @@ import { useEffect } from 'react';
 
 const CinematicScroll = () => {
   useEffect(() => {
-    // Disable cinematic scroll on mobile devices by returning early
-    if (window.innerWidth < 768) return;
-
     let isTweening = false;
     let touchStartY = 0;
     
@@ -53,12 +50,14 @@ const CinematicScroll = () => {
     };
 
     const handleWheel = (e) => {
+      if (window.innerWidth < 768) return;
       e.preventDefault();
       if (isTweening) return;
       smoothScrollTo(getTargetTop(e.deltaY > 0 ? 1 : -1));
     };
 
     const handleKeydown = (e) => {
+      if (window.innerWidth < 768) return;
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
         e.preventDefault();
         if (isTweening) return;
@@ -68,15 +67,18 @@ const CinematicScroll = () => {
     };
 
     const handleTouchStart = (e) => {
+      if (window.innerWidth < 768) return;
       touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e) => {
+      if (window.innerWidth < 768) return;
       // Prevent native scroll on the document completely to orchestrate sliding effect
       e.preventDefault();
     };
 
     const handleTouchEnd = (e) => {
+      if (window.innerWidth < 768) return;
       if (isTweening) return;
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
