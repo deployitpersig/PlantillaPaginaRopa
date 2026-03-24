@@ -1,26 +1,16 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ArrowRight, ShoppingCart, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
-const SUB_CATEGORIES = [
-  ...['T-Shirts', 'Polo Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants', 'Shorts', 'Suits', 'Swimwear', 'Socks', 'Accessories'].map(t => ({ label: `Men's ${t}`, path: '/category/mens', search: t })),
-  ...['T-Shirts', 'Tops', 'Blouses', 'Hoodies', 'Jackets', 'Dresses', 'Skirts', 'Jeans', 'Pants', 'Shorts', 'Underwear', 'Swimwear', 'Jumpsuits', 'Socks & Tights', 'Accessories'].map(t => ({ label: `Women's ${t}`, path: '/category/womens', search: t })),
-  ...['T-Shirts', 'Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants & Leggings', 'Shorts', 'Dresses', 'Skirts', 'Underwear', 'Swimwear', 'Socks', 'Accessories'].map(t => ({ label: `Kids ${t}`, path: '/category/kids', search: t }))
-];
-
 // Helper: a product is "out of stock" only if stock is explicitly set to a number > 0 by admin
 // and then depleted to 0 through purchases. If stock is null/undefined/0 from migration, it means
 // stock is NOT being managed yet (treat as unlimited).
 const isOutOfStock = (product) => {
-  // If stock was never set or is null, stock is not managed → available
   if (product.stock === null || product.stock === undefined) return false;
-  // If stock > 0, it's available
   if (product.stock > 0) return false;
-  // stock === 0: check if sold_count > 0 (meaning it was depleted through sales)
   if (product.sold_count && product.sold_count > 0) return true;
-  // stock === 0 with no sales = default from migration, treat as available
   return false;
 };
 
@@ -34,7 +24,6 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Try ordering by sold_count (best sellers), fallback to created_at if column doesn't exist
         let result = await supabase
           .from('products')
           .select('*')
@@ -42,7 +31,6 @@ const Products = () => {
           .limit(6);
 
         if (result.error) {
-          // Fallback: sold_count column may not exist yet
           result = await supabase
             .from('products')
             .select('*')
@@ -68,33 +56,17 @@ const Products = () => {
   };
 
   return (
-    <section className="py-20 px-6 md:px-12 max-w-6xl mx-auto text-center overflow-hidden">
+    <section className="py-20 px-6 md:px-12 max-w-6xl mx-auto text-center">
       {/* EST Badge */}
       <div className="inline-block border border-gray-900 rounded-full px-5 py-1.5 text-xs font-semibold tracking-wider mb-6">
         EST 2015
       </div>
 
       <h2 className="text-4xl md:text-5xl font-bold mb-4">Our Products</h2>
-      <p className="text-gray-500 max-w-2xl mx-auto mb-10 text-sm leading-relaxed">
+      <p className="text-gray-500 max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
         Our focus is on producing high-quality, hard-wearing comfort and urban wear items for everyday life.
         Our products are the styles people need to live and thrive. Founded in 2015.
       </p>
-
-      {/* Horizontal Subcategory Tags */}
-      <div 
-        className="flex overflow-x-auto gap-3 pb-4 mb-12 snap-x [&::-webkit-scrollbar]:hidden" 
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {SUB_CATEGORIES.map((cat, index) => (
-          <button 
-            key={index}
-            onClick={() => navigate(`${cat.path}?search=${encodeURIComponent(cat.search)}`)}
-            className="flex-shrink-0 snap-start bg-white text-gray-700 border border-gray-200 hover:border-black hover:text-black hover:bg-gray-50 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all"
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
 
       {/* Product Grid */}
       {loading ? (

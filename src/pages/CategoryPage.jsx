@@ -4,6 +4,12 @@ import { ArrowLeft, ShoppingCart, Check, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 
+const SUBCATEGORIES = {
+  mens: ['T-Shirts', 'Polo Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants', 'Shorts', 'Suits', 'Swimwear', 'Socks', 'Accessories'],
+  womens: ['T-Shirts', 'Tops', 'Blouses', 'Hoodies', 'Jackets', 'Dresses', 'Skirts', 'Jeans', 'Pants', 'Shorts', 'Underwear', 'Swimwear', 'Jumpsuits', 'Socks & Tights', 'Accessories'],
+  kids: ['T-Shirts', 'Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants & Leggings', 'Shorts', 'Dresses', 'Skirts', 'Underwear', 'Swimwear', 'Socks', 'Accessories'],
+};
+
 const CATEGORY_CONFIG = {
   'new-arrivals': {
     title: 'New Arrivals',
@@ -45,16 +51,21 @@ const CategoryPage = ({ showAll = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedId, setAddedId] = useState(null);
+  const [activeFilters, setActiveFilters] = useState([]);
   const { addToCart } = useCart();
-
-  const searchParams = new URLSearchParams(location.search);
-  const searchFilter = searchParams.get('search');
 
   const config = showAll
     ? { title: 'All Products', description: 'Browse our complete catalog.' }
     : CATEGORY_CONFIG[slug];
+
+  const subcategories = SUBCATEGORIES[slug] || [];
+
+  useEffect(() => {
+    setActiveFilters([]);
+  }, [slug]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -66,23 +77,41 @@ const CategoryPage = ({ showAll = false }) => {
           query = config.filter(query);
         }
 
-        if (searchFilter) {
-          query = query.or(`name.ilike.%${searchFilter}%,category.ilike.%${searchFilter}%`);
-        }
-
         if (!slug || slug !== 'new-arrivals') {
           query = query.order('created_at', { ascending: false });
         }
 
         const { data } = await query;
-        setProducts(data || []);
+        const fetched = data || [];
+        setAllProducts(fetched);
+        setProducts(fetched);
       } catch {
+        setAllProducts([]);
         setProducts([]);
       }
       setLoading(false);
     };
     fetchProducts();
   }, [slug, showAll]);
+
+  // Client-side filtering when subcategory pills are toggled
+  useEffect(() => {
+    if (activeFilters.length === 0) {
+      setProducts(allProducts);
+    } else {
+      const filtered = allProducts.filter((p) => {
+        const sub = (p.subcategory || '').toLowerCase();
+        return activeFilters.some((f) => sub.includes(f.toLowerCase()));
+      });
+      setProducts(filtered);
+    }
+  }, [activeFilters, allProducts]);
+
+  const toggleFilter = (sub) => {
+    setActiveFilters((prev) =>
+      prev.includes(sub) ? prev.filter((f) => f !== sub) : [...prev, sub]
+    );
+  };
 
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
@@ -115,7 +144,7 @@ const CategoryPage = ({ showAll = false }) => {
       </button>
 
       {/* Header */}
-      <div className="text-center mb-14">
+      <div className="text-center mb-8">
         <div className="inline-block border border-gray-900 rounded-full px-5 py-1.5 text-xs font-semibold tracking-wider mb-6">
           {showAll ? 'CATALOG' : slug?.toUpperCase().replace('-', ' ')}
         </div>
@@ -124,6 +153,43 @@ const CategoryPage = ({ showAll = false }) => {
           {config.description}
         </p>
       </div>
+
+      {/* Subcategory Filter Pills */}
+      {subcategories.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-2.5 mb-12">
+          {subcategories.map((sub) => {
+            const isActive = activeFilters.includes(sub);
+            return (
+              <button
+                key={sub}
+                onClick={() => toggleFilter(sub)}
+                className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
+                  isActive
+                    ? 'bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-900/20'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:text-gray-900'
+                }`}
+              >
+                {sub}
+              </button>
+            );
+          })}
+          {activeFilters.length > 0 && (
+            <button
+              onClick={() => setActiveFilters([])}
+              className="px-5 py-2 rounded-full text-xs font-semibold tracking-wide text-red-500 border border-red-200 hover:bg-red-50 transition-all"
+            >
+              Limpiar filtros ✕
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Active filter count */}
+      {activeFilters.length > 0 && (
+        <p className="text-center text-xs text-gray-400 mb-6">
+          {products.length} producto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
+        </p>
+      )}
 
       {/* Product Grid */}
       {loading ? (
@@ -139,8 +205,12 @@ const CategoryPage = ({ showAll = false }) => {
       ) : products.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <ShoppingCart size={48} className="mx-auto mb-4" strokeWidth={1} />
-          <p className="font-medium">No products found in this category</p>
-          <p className="text-sm mt-1">Check back later for new arrivals!</p>
+          <p className="font-medium">
+            {activeFilters.length > 0 ? 'No hay productos con esos filtros' : 'No products found in this category'}
+          </p>
+          <p className="text-sm mt-1">
+            {activeFilters.length > 0 ? 'Probá quitando algunos filtros' : 'Check back later for new arrivals!'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 text-left max-w-4xl mx-auto">
@@ -167,6 +237,12 @@ const CategoryPage = ({ showAll = false }) => {
                       {product.tag}
                     </span>
                   )}
+                  {/* Subcategory badge */}
+                  {product.subcategory && (
+                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-gray-600 text-[10px] font-medium px-2.5 py-1 rounded-full">
+                      {product.subcategory}
+                    </span>
+                  )}
                   {/* Add to Cart Button */}
                   {!outOfStock && (
                     <button
@@ -191,7 +267,7 @@ const CategoryPage = ({ showAll = false }) => {
                     )}
                     {product.discount && (
                       <span className="text-red-500 text-[10px] font-bold bg-red-50 px-2 py-0.5 rounded">
-                        {product.discount}
+                        {product.discount}% OFF
                       </span>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const styles = [
@@ -31,10 +31,10 @@ const styles = [
 
 const Styles = () => {
   return (
-    <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
-      <h2 className="text-4xl font-bold mb-12 text-center">Browse by Dress Style</h2>
+    <section className="py-16 md:py-24 w-full flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto flex-shrink-0 section-snap">
+      <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
       
-      <div className="grid grid-cols-12 gap-4 auto-rows-[250px] bg-gray-100 p-8 rounded-3xl">
+      <div className="grid grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-6 rounded-3xl w-full">
         {styles.map((style, index) => (
           <div 
             key={index} 
@@ -42,9 +42,9 @@ const Styles = () => {
           >
             {/* Title positioning mimicking the original layout */}
             <div className="absolute top-6 left-6 z-10">
-              <h3 className="text-2xl font-bold">{style.title}</h3>
-              <p className="text-gray-500 text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
-                Explore <ArrowRight className="w-4 h-4" />
+              <h3 className="text-xl md:text-2xl font-bold">{style.title}</h3>
+              <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
+                Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
               </p>
             </div>
             

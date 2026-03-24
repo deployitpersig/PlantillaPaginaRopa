@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { Mail } from 'lucide-react';
 
 const Newsletter = () => {
   return (
-    <section className="px-6 md:px-12 pb-24 max-w-7xl mx-auto">
+    <section className="px-6 md:px-12 pb-24 max-w-7xl mx-auto section-snap">
       <div className="bg-black rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 w-full shadow-2xl">
         <div className="w-full md:w-1/2 text-white">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">

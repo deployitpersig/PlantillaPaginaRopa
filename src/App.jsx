@@ -5,7 +5,6 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import Hero from './components/home/Hero';
 import Banners from './components/home/Banners';
-import Products from './components/home/Products';
 import MidBanner from './components/home/MidBanner';
 import Styles from './components/home/Styles';
 import Features from './components/home/Features';
@@ -14,15 +13,16 @@ import Newsletter from './components/home/Newsletter';
 import AdminPage from './pages/AdminPage';
 import CheckoutPage from './pages/CheckoutPage';
 import CategoryPage from './pages/CategoryPage';
+import CinematicScroll from './components/home/CinematicScroll';
 
 function HomePage() {
   return (
     <>
+      <CinematicScroll />
       <Hero />
-      <Banners />
-      <Products />
       <MidBanner />
       <Styles />
+      <Banners />
       <Features />
       <Testimonials />
       <Newsletter />

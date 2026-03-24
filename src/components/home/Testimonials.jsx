@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Star, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const reviews = [
@@ -21,7 +21,7 @@ const reviews = [
 
 const Testimonials = () => {
   return (
-    <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+    <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto section-snap">
       <div className="flex items-center justify-between mb-12">
         <h2 className="text-3xl md:text-4xl font-bold">Our Happy Customers</h2>
         <div className="flex gap-2">

@@ -1,22 +1,33 @@
-import React from 'react';
+﻿import React from 'react';
 
 const MidBanner = () => {
   return (
-    <section className="w-full relative h-[400px] md:h-[500px] flex items-center justify-center overflow-hidden">
-      <img 
-        src="https://images.unsplash.com/photo-1512353087810-254e04f67c42?auto=format&fit=crop&q=80&w=1200" 
-        alt="Models on sports court in streetwear" 
-        className="absolute inset-0 w-full h-full object-cover object-top opacity-80"
-      />
+    <section className="w-full relative h-screen flex items-center justify-center overflow-hidden section-snap">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/videopagina.mp4" type="video/mp4" />
+      </video>
       
-      {/* Dark Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      {/* Dark Overlay for better contrast on text */}
+      <div className="absolute inset-0 bg-black/70"></div>
 
       <div className="relative z-10 text-center text-white px-6 flex flex-col items-center">
-        <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-2xl leading-tight">
-          Effortless Style,<br />Every Step of the Way you take
+        <p className="text-xs uppercase tracking-[0.3em] font-medium text-gray-300 mb-6">
+          Collection 2025
+        </p>
+        <h2 className="text-4xl md:text-6xl font-bold mb-6 max-w-3xl leading-tight tracking-tight">
+          Effortless Style,<br />Every Step of the Way
         </h2>
-        <button className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors">
+        <p className="text-gray-300 text-sm md:text-base max-w-lg mb-10 leading-relaxed">
+          Discover pieces that define who you are. Crafted with precision, designed for the bold.
+        </p>
+        <button className="bg-white text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95">
           View Collection
         </button>
       </div>

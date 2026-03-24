@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const slides = [
   {
@@ -7,33 +8,38 @@ const slides = [
     subtitle: "A true classic, redefining street style",
     title: "Hoodie",
     description: "Our premium heavy-weight fleece hoodie is designed for the modern street aesthetic. Built with uncompromised craftsmanship for every day comfort.",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=1000" // Light gray background
+    image: "/hero-slide-1.png",
+    link: "/category/mens"
   },
   {
     id: 2,
     subtitle: "Minimalist approach",
     title: "Essentials",
     description: "Stripped down to the absolute necessities without compromising on quality or style. The foundation of any modern wardrobe.",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000" // Soft white background
+    image: "/hero-slide-2.png",
+    link: "/products"
   },
   {
     id: 3,
     subtitle: "Urban exploration gear",
     title: "Techwear",
     description: "Functional apparel built for the concrete jungle. Weather-resistant materials meet cutting-edge design for ultimate mobility.",
-    image: "https://images.unsplash.com/photo-1550614000-4b95d4ed794d?auto=format&fit=crop&q=80&w=1000" // Black hoodie light gray bg
+    image: "/hero-slide-3.png",
+    link: "/category/mens"
   },
   {
     id: 4,
     subtitle: "Elevate your everyday look",
     title: "Multiply",
     description: "Experience the next level of comfort with our signature double-layered design. Perfect for any season and every occasion.",
-    image: "https://images.unsplash.com/photo-1523381140794-a1e6b81194ac?auto=format&fit=crop&q=80&w=1000" // White hoodie on light gray
+    image: "/hero-slide-4.png",
+    link: "/category/womens"
   }
 ];
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -56,10 +62,14 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative w-full max-w-7xl mx-auto px-6 md:px-12 h-[600px] md:h-[700px] flex items-center overflow-hidden bg-white">
+    <div className="w-full h-screen section-snap flex flex-col bg-white">
+      {/* Spacer for the header (Option 2 implementation natively inside Hero) */}
+      <div className="h-20 w-full shrink-0"></div>
       
-      {/* Left Content Container */}
-      <div className="relative z-10 w-full md:w-1/2 flex flex-col justify-center">
+      <section className="relative w-full flex-grow flex items-center overflow-hidden">
+        
+        {/* Left Content Container */}
+        <div className="relative z-10 w-full md:w-1/2 flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-8">
         
         {/* Variable Text Block */}
         <div className="relative h-[280px] w-full">
@@ -81,19 +91,19 @@ const Hero = () => {
           ))}
         </div>
 
-        {/* Fixed Buttons */}
+        {/* Shop Now Button */}
         <div className="flex flex-wrap items-center gap-4">
-          <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+          <button 
+            onClick={() => navigate(slides[currentSlide].link)}
+            className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+          >
             <ShoppingBagIcon className="w-4 h-4" /> Shop now
-          </button>
-          <button className="bg-white text-black border border-gray-200 px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-            <Play className="w-4 h-4" /> View Promo
           </button>
         </div>
       </div>
 
-      {/* Full Background Image Layer (blended) */}
-      <div className="absolute inset-0 z-0 pointer-events-none mix-blend-multiply w-full h-full md:w-2/3 md:ml-auto right-0">
+      {/* Full Background Image Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none w-full h-full md:w-2/3 md:ml-auto right-0">
         {slides.map((slide, index) => (
           <img 
             key={slide.id}
@@ -107,7 +117,7 @@ const Hero = () => {
       {/* Navigation Layer */}
       <div className="absolute inset-0 z-20 pointer-events-none">
         
-        {/* Pagination Numbers (Right absolute position) */}
+        {/* Pagination Numbers */}
         <div className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-8 text-sm font-bold text-gray-300 pointer-events-auto">
           {slides.map((slide, index) => (
             <span 
@@ -120,11 +130,10 @@ const Hero = () => {
           ))}
         </div>
 
-
-
       </div>
 
     </section>
+    </div>
   );
 };
 

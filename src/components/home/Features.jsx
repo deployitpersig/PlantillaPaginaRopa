@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { Heart, Smile, Zap } from 'lucide-react';
 
 const Features = () => {
   return (
-    <section className="w-full bg-[#f0f9ff] relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+    <section className="w-full bg-[#f0f9ff] relative overflow-hidden flex flex-col md:flex-row items-center justify-between section-snap">
       {/* Left Content */}
       <div className="w-full md:w-1/2 py-20 px-6 md:pl-24 lg:pl-32 xl:pl-48">
         <h2 className="text-4xl md:text-5xl font-bold mb-16 leading-tight max-w-md">

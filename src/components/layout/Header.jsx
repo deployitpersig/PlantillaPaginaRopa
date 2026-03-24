@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShoppingBag, User, LogOut, Shield } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -19,10 +19,26 @@ const Header = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const { totalItems, setIsOpen } = useCart();
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Monitor scroll to switch header background from translucent to solid
+  useEffect(() => {
+    const handleScroll = () => {
+      // If scrolled past 50px (out of hero), make it solid
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Initialize properly on mount
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleUserClick = () => {
     if (user) {
@@ -39,7 +55,13 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100">
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 w-full px-6 py-4 flex items-center justify-between transition-colors duration-500 ${
+          isScrolled 
+            ? 'bg-white border-b border-gray-100 shadow-sm text-gray-900' 
+            : 'bg-white/30 backdrop-blur-xl border-b border-white/10 text-gray-900'
+        }`}
+      >
         {/* Logo */}
         <a href="/" className="text-2xl font-black tracking-tighter" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
           Hoodie.
