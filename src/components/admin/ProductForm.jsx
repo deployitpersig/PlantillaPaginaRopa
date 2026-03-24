@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
+import { z } from 'zod';
 import { X, Loader2, Upload, Package, DollarSign, Tag, Layers, ImageIcon, Sparkles, Palette, Ruler, BadgeCheck, FileText, Hash, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+
+const productSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  price: z.number({ invalid_type_error: 'El precio es inválido' }).positive('El precio debe ser mayor a 0'),
+  original_price: z.number().positive().nullable().optional(),
+  discount: z.number().min(0, 'El descuento mínimo es 0').max(100, 'El descuento máximo es 100').nullable().optional()
+});
 
 const SUBCATEGORIES = {
   mens: ['T-Shirts', 'Polo Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants', 'Shorts', 'Suits', 'Swimwear', 'Socks', 'Accessories'],
@@ -185,8 +193,20 @@ const ProductForm = ({ product, onClose, onSave }) => {
     setError('');
 
     // Validation
-    if (!form.name.trim()) { setError('El nombre es obligatorio'); return; }
-    if (!form.price) { setError('El precio es obligatorio'); return; }
+    try {
+      productSchema.parse({
+        name: form.name.trim(),
+        price: parseFloat(form.price),
+        original_price: form.original_price ? parseFloat(form.original_price) : null,
+        discount: form.discount ? parseFloat(form.discount) : null
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.issues[0].message);
+        return;
+      }
+    }
+
     if (imagePreviews.length === 0 && imageFiles.length === 0) { setError('Agregá al menos una imagen'); return; }
 
     setLoading(true);

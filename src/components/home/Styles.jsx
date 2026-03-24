@@ -121,15 +121,13 @@ const Styles = () => {
                 </p>
               </div>
               
-              {/* Image */}
-              <div className="absolute inset-0 w-full h-full">
+              {/* Image Container */}
+              <div className="absolute right-0 top-0 h-full w-2/3 md:w-1/2 flex items-center justify-end md:justify-center p-4 md:p-6 pointer-events-none">
                 <img 
                   src={style.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'} 
                   alt={style.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-contain object-right md:object-center group-hover:scale-110 transition-transform duration-500"
                 />
-                {/* Gradient overlay for text readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/40 to-transparent"></div>
               </div>
             </div>
           ))}

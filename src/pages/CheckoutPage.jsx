@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { ArrowLeft, ArrowRight, Check, CreditCard, Building2, Smartphone, Loader2, ShoppingBag, Package, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
 const STEPS = ['Datos', 'Resumen', 'Pago'];
+
+const customerSchema = z.object({
+  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+  email: z.string().email('Dirección de email inválida'),
+  phone: z.string().min(8, 'El teléfono debe tener un formato válido de al menos 8 caracteres'),
+  address: z.string().min(5, 'Especificá una dirección válida (calle, número)'),
+});
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -26,19 +34,9 @@ const CheckoutPage = () => {
 
   // Payment
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [cardForm, setCardForm] = useState({
-    number: '',
-    expiry: '',
-    cvv: '',
-    holder: '',
-  });
 
   const handleCustomerChange = (e) => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
-  };
-
-  const handleCardChange = (e) => {
-    setCardForm({ ...cardForm, [e.target.name]: e.target.value });
   };
 
   const canProceed = () => {
@@ -52,117 +50,40 @@ const CheckoutPage = () => {
     setLoading(true);
     setError('');
     try {
-      // 1. Verify stock for all items
-      const productIds = items.map(i => i.product.id);
-      const { data: currentProducts, error: fetchError } = await supabase
-        .from('products')
-        .select('*')
-        .in('id', productIds);
-
-      if (fetchError) throw new Error('Error verificando stock. Intentá de nuevo.');
-
-      const stockMap = {};
-      (currentProducts || []).forEach(p => { stockMap[p.id] = p; });
-
-      // Accumulate requested quantities by product and size
-      const requestsByProduct = {};
-      
-      for (const item of items) {
-        const pid = item.product.id;
-        if (!requestsByProduct[pid]) {
-          requestsByProduct[pid] = { total: 0, bySize: {} };
-        }
-        requestsByProduct[pid].total += item.quantity;
-        
-        if (item.size) {
-          requestsByProduct[pid].bySize[item.size] = (requestsByProduct[pid].bySize[item.size] || 0) + item.quantity;
-        } else {
-          requestsByProduct[pid].bySize['NO_SIZE'] = (requestsByProduct[pid].bySize['NO_SIZE'] || 0) + item.quantity;
-        }
+      const validation = customerSchema.safeParse(customer);
+      if (!validation.success) {
+        throw new Error(validation.error.issues[0].message);
       }
-
-      // Check stock availability
-      for (const [pid, request] of Object.entries(requestsByProduct)) {
-        const dbProduct = stockMap[pid];
-        if (!dbProduct) {
-          throw new Error('Un producto ya no está disponible.');
-        }
-        
-        // Check size specific stock
-        if (dbProduct.stock_by_size && Object.keys(dbProduct.stock_by_size).length > 0) {
-          for (const [size, qty] of Object.entries(request.bySize)) {
-            if (size !== 'NO_SIZE') {
-              const available = dbProduct.stock_by_size[size] || 0;
-              if (available < qty) {
-                throw new Error(`Stock insuficiente para "${dbProduct.name}" en talle ${size}. Disponible: ${available}, pedido: ${qty}.`);
-              }
-            }
-          }
-        }
-        
-        // Check total stock fallback
-        const currentTotalStock = dbProduct.stock ?? Infinity;
-        if (currentTotalStock !== Infinity && currentTotalStock < request.total) {
-          throw new Error(`Stock general insuficiente para "${dbProduct.name}". Disponible: ${currentTotalStock}, pedido: ${request.total}.`);
-        }
-      }
-
-      // 2. Create order
       const orderData = {
         user_id: user?.id || null,
         customer_name: customer.name,
         customer_email: customer.email,
         customer_phone: customer.phone,
         customer_address: customer.address,
-        items: items.map(i => ({
-          product_id: i.product.id,
-          name: i.product.name,
-          price: i.product.price,
-          quantity: i.quantity,
-          image: i.product.image,
-          size: i.size || null,
-          color: i.color || null
-        })),
         total: totalPrice,
         payment_method: paymentMethod,
         status: 'pending',
       };
 
-      const { error: orderError } = await supabase.from('orders').insert(orderData);
-      if (orderError) throw new Error('Error al crear el pedido. Intentá de nuevo.');
+      const orderItems = items.map(i => ({
+        product_id: i.product.id,
+        name: i.product.name,
+        price: i.product.price,
+        quantity: i.quantity,
+        image: i.product.image,
+        size: i.size || null,
+        color: i.color || null
+      }));
 
-      // 3. Decrement stock and increment sold_count for each product
-      const stockUpdates = Object.entries(requestsByProduct).map(async ([pid, request]) => {
-        const dbProduct = stockMap[pid];
-        const updatePayload = {};
-
-        if (dbProduct.stock !== undefined && dbProduct.stock !== null) {
-          updatePayload.stock = Math.max(0, dbProduct.stock - request.total);
-        }
-
-        if (dbProduct.stock_by_size && Object.keys(dbProduct.stock_by_size).length > 0) {
-          const newStockBySize = { ...dbProduct.stock_by_size };
-          for (const [size, qty] of Object.entries(request.bySize)) {
-            if (size !== 'NO_SIZE' && newStockBySize[size] !== undefined) {
-              newStockBySize[size] = Math.max(0, newStockBySize[size] - qty);
-            }
-          }
-          updatePayload.stock_by_size = newStockBySize;
-        }
-
-        if (dbProduct.sold_count !== undefined && dbProduct.sold_count !== null) {
-          updatePayload.sold_count = dbProduct.sold_count + request.total;
-        }
-
-        if (Object.keys(updatePayload).length > 0) {
-          return supabase
-            .from('products')
-            .update(updatePayload)
-            .eq('id', pid);
-        }
+      // Secure order placement via Database Function (Atomic Stock Decrement)
+      const { error: rpcError } = await supabase.rpc('place_order', {
+        p_order_data: orderData,
+        p_items: orderItems
       });
 
-      await Promise.all(stockUpdates);
+      if (rpcError) {
+        throw new Error(rpcError.message || 'Error al procesar el pedido. Esto puede suceder si algún producto se quedó sin stock.');
+      }
 
       clearCart();
       setOrderComplete(true);
@@ -346,70 +267,6 @@ const CheckoutPage = () => {
             <div>
               <h2 className="text-lg font-bold mb-4">Método de Pago</h2>
               <div className="space-y-3">
-                {/* Credit/Debit Card */}
-                <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`w-full p-5 rounded-xl border-2 text-left transition-all flex items-center gap-4 ${
-                    paymentMethod === 'card' ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-300'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${paymentMethod === 'card' ? 'bg-black text-white' : 'bg-gray-100 text-gray-500'}`}>
-                    <CreditCard size={22} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">Tarjeta de Crédito / Débito</p>
-                    <p className="text-xs text-gray-400">Visa, Mastercard, AMEX</p>
-                  </div>
-                  {paymentMethod === 'card' && (
-                    <div className="ml-auto w-6 h-6 bg-black text-white rounded-full flex items-center justify-center">
-                      <Check size={14} />
-                    </div>
-                  )}
-                </button>
-
-                {/* Card Form */}
-                {paymentMethod === 'card' && (
-                  <div className="pl-16 pr-4 pb-2 space-y-3">
-                    <input
-                      type="text"
-                      name="holder"
-                      placeholder="Nombre del titular"
-                      value={cardForm.holder}
-                      onChange={handleCardChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-black transition-colors"
-                    />
-                    <input
-                      type="text"
-                      name="number"
-                      placeholder="Número de tarjeta"
-                      value={cardForm.number}
-                      onChange={handleCardChange}
-                      maxLength={19}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-black transition-colors"
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="text"
-                        name="expiry"
-                        placeholder="MM/AA"
-                        value={cardForm.expiry}
-                        onChange={handleCardChange}
-                        maxLength={5}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-black transition-colors"
-                      />
-                      <input
-                        type="text"
-                        name="cvv"
-                        placeholder="CVV"
-                        value={cardForm.cvv}
-                        onChange={handleCardChange}
-                        maxLength={4}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-black transition-colors"
-                      />
-                    </div>
-                  </div>
-                )}
-
                 {/* Mercado Pago */}
                 <button
                   onClick={() => setPaymentMethod('mercadopago')}

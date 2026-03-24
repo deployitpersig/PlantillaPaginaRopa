@@ -50,12 +50,12 @@ export const AuthProvider = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
         
         if (!mounted) return;
 
-        const currentUser = session?.user ?? null;
+        const currentUser = user ?? null;
         setUser(currentUser);
         
         if (currentUser) {
