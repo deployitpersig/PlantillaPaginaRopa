@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, User, LogOut, Shield } from 'lucide-react';
+import { Search, ShoppingBag, User, LogOut, Shield, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
 const Header = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkSection, setIsDarkSection] = useState(false);
@@ -72,10 +73,20 @@ const Header = () => {
               : 'bg-white/30 backdrop-blur-xl border-b border-white/10 text-gray-900'
         }`}
       >
-        {/* Logo */}
-        <a href="/" className={`text-2xl font-black tracking-tighter transition-colors duration-500 ${isDarkSection ? 'text-white' : ''}`} onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-          Hoodie.
-        </a>
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <button 
+            className={`md:hidden p-1 -ml-1 ${isDarkSection ? 'text-white' : 'text-gray-900'}`}
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu size={24} />
+          </button>
+          
+          {/* Logo */}
+          <a href="/" className={`text-2xl font-black tracking-tighter transition-colors duration-500 ${isDarkSection ? 'text-white' : ''}`} onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+            Hoodie.
+          </a>
+        </div>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
@@ -164,6 +175,43 @@ const Header = () => {
       {/* Click-outside to close profile dropdown */}
       {profileDropdown && (
         <div className="fixed inset-0 z-40" onClick={() => setProfileDropdown(false)} />
+      )}
+
+      {/* Mobile Menu Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] flex">
+          {/* Overlay */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Menu Panel */}
+          <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col pt-20 px-6 animate-in slide-in-from-left">
+            <button 
+              className="absolute top-6 right-6 p-2 text-gray-500 hover:text-black transition-colors bg-gray-100 rounded-full"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X size={20} />
+            </button>
+            <div className="flex flex-col space-y-6">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-2xl font-black tracking-tight text-gray-900 uppercase border-b border-gray-100 pb-4"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            
+            <div className="mt-auto mb-10 border-t border-gray-100 pt-6">
+              <a href="/" className="text-3xl font-black tracking-tighter">Hoodie.</a>
+              <p className="text-sm text-gray-500 mt-2">Urban vibes, timeless style.</p>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
