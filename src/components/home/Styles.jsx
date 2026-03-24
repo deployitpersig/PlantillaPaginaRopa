@@ -3,6 +3,34 @@ import { ArrowRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
+// Grid layout patterns for 5 cards:
+// On mobile (grid-cols-2): 1st is full width, next 4 are half width (2x2) -> 3 rows total.
+// On desktop (grid-cols-12): Original custom spans.
+const LAYOUT = [
+  'col-span-2 md:col-span-6',
+  'col-span-2 md:col-span-6',
+  'col-span-2 md:col-span-4',
+  'col-span-2 md:col-span-5',
+  'col-span-2 md:col-span-3',
+];
+
+// Refined mobile layout so it doesn't overflow 100vh
+const MOBILE_LAYOUT = [
+  'col-span-2', // Row 1: Full width
+  'col-span-1', // Row 2: Half width
+  'col-span-1', // Row 2: Half width
+  'col-span-1', // Row 3: Half width
+  'col-span-1', // Row 3: Half width
+];
+
+const DESKTOP_LAYOUT = [
+  'md:col-span-6',
+  'md:col-span-6',
+  'md:col-span-4',
+  'md:col-span-5',
+  'md:col-span-3',
+];
+
 const Styles = () => {
   const [styles, setStyles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +71,11 @@ const Styles = () => {
 
         const sorted = Object.values(subcatMap)
           .sort((a, b) => b.totalSold - a.totalSold)
-          .slice(0, 5); // Keep top 5 or let it be dynamic
+          .slice(0, 5)
+          .map((item, i) => ({
+            ...item,
+            colSpan: `${MOBILE_LAYOUT[i] || 'col-span-2'} ${DESKTOP_LAYOUT[i] || 'md:col-span-12'}`,
+          }));
 
         setStyles(sorted);
       } catch {
@@ -70,12 +102,9 @@ const Styles = () => {
       <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
         <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
-          <div 
-            className="grid gap-4 bg-gray-100 p-4 md:p-6 rounded-3xl w-full"
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
-          >
+          <div className="grid grid-cols-2 md:grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-4 md:p-6 rounded-3xl w-full">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-gray-200 rounded-2xl animate-pulse h-[200px] md:h-[240px]" />
+              <div key={i} className={`bg-gray-200 rounded-2xl animate-pulse ${MOBILE_LAYOUT[i - 1]} ${DESKTOP_LAYOUT[i - 1]}`} />
             ))}
           </div>
         </div>
@@ -90,33 +119,26 @@ const Styles = () => {
       <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
         
-        <div 
-          className="grid gap-4 bg-gray-100 p-4 md:p-6 rounded-3xl w-full"
-          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
-        >
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-4 md:p-6 rounded-3xl w-full">
           {styles.map((style) => (
             <div 
               key={style.title} 
-              className="relative bg-white rounded-2xl overflow-hidden group cursor-pointer h-[200px] md:h-[240px] flex-shrink-0 flex flex-col justify-end"
+              className={`relative bg-white rounded-2xl overflow-hidden group cursor-pointer ${style.colSpan}`}
               onClick={() => handleClick(style)}
             >
-              {/* Image Container taking full background */}
-              <div className="absolute inset-0 w-full h-full p-6">
+              <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+                <h3 className="text-lg md:text-2xl font-bold">{style.title}</h3>
+                <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
+                  Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                </p>
+              </div>
+              
+              <div className="absolute right-0 top-0 h-full w-2/3 md:w-1/2 flex items-center justify-end md:justify-center p-4 md:p-6 pointer-events-none">
                 <img 
                   src={style.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'} 
                   alt={style.title} 
-                  className="w-full h-full object-contain object-right md:object-center group-hover:scale-110 transition-transform duration-500 opacity-90"
+                  className="w-full h-full object-contain object-right md:object-center group-hover:scale-110 transition-transform duration-500"
                 />
-              </div>
-
-              {/* Title positioning - Added background gradient to protect text visibility against images */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 z-10 pointer-events-none" />
-              
-              <div className="relative z-20 p-6 flex flex-col">
-                <h3 className="text-xl md:text-2xl font-bold text-white drop-shadow-md">{style.title}</h3>
-                <p className="text-gray-100 font-semibold text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-white transition-colors drop-shadow-md">
-                  Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                </p>
               </div>
             </div>
           ))}
