@@ -2,6 +2,10 @@ import { useEffect } from 'react';
 
 const CinematicScroll = () => {
   useEffect(() => {
+    // Crucial: Return early on mobile. Attaching touchmove with passive:false 
+    // destroys hardware-accelerated smooth scrolling on iOS and Android.
+    if (window.innerWidth < 768) return;
+
     let isTweening = false;
     let touchStartY = 0;
     
@@ -50,7 +54,6 @@ const CinematicScroll = () => {
     };
 
     const handleWheel = (e) => {
-      if (window.innerWidth < 768) return;
       e.preventDefault();
       if (isTweening) return;
       smoothScrollTo(getTargetTop(e.deltaY > 0 ? 1 : -1));
@@ -67,18 +70,15 @@ const CinematicScroll = () => {
     };
 
     const handleTouchStart = (e) => {
-      if (window.innerWidth < 768) return;
       touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e) => {
-      if (window.innerWidth < 768) return;
       // Prevent native scroll on the document completely to orchestrate sliding effect
       e.preventDefault();
     };
 
     const handleTouchEnd = (e) => {
-      if (window.innerWidth < 768) return;
       if (isTweening) return;
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
