@@ -222,7 +222,7 @@ const CategoryPage = ({ showAll = false }) => {
           {products.map((product) => {
             const outOfStock = isOutOfStock(product);
             return (
-              <div key={product.id} className="group cursor-pointer">
+              <div key={product.id} className="group cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-gray-50 mb-4">
                   <img
                     src={product.image}

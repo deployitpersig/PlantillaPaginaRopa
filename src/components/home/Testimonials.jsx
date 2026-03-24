@@ -1,55 +1,153 @@
-﻿import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Star, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const reviews = [
   {
     id: 1,
-    name: 'Sarah M.',
-    text: '"I\'m blown away by the quality and style of the clothes I received. The pieces are incredible, they fit perfectly and have a unique streetwear vibe that I love!"'
+    name: 'Martín G.',
+    rating: 5,
+    text: '"La calidad de la ropa es impresionante, se nota que usan buenos materiales. Pedí dos buzos y me llegaron en perfectas condiciones. Súper recomendable."'
   },
   {
     id: 2,
-    name: 'Alex K.',
-    text: '"Finding clothes that are comfortable and look great is usually a challenge, but Hoodie nails it. The materials are premium and the designs are just next level."'
+    name: 'Camila R.',
+    rating: 4,
+    text: '"Me encantó el diseño del hoodie que compré, es tal cual se ve en las fotos. El envío tardó un poquito más de lo esperado pero valió la pena la espera."'
   },
   {
     id: 3,
-    name: 'James L.',
-    text: '"Absolutely love the new jacket I bought. I\'ve gotten so many compliments on it. Shipping was fast and the packaging felt really premium. Highly recommend!"'
+    name: 'Santiago L.',
+    rating: 5,
+    text: '"Excelente atención y productos de primera. Compré una campera y un jean, los dos me quedaron perfecto. Ya estoy mirando qué más pedir."'
+  },
+  {
+    id: 4,
+    name: 'Valentina M.',
+    rating: 5,
+    text: '"Soy re exigente con la ropa y quedé muy conforme. Las terminaciones son de calidad, los talles son fieles y el packaging es un detalle que se agradece."'
+  },
+  {
+    id: 5,
+    name: 'Facundo D.',
+    rating: 4,
+    text: '"Buenos productos en general, el buzo que pedí es muy cómodo y abrigado. Le doy 4 estrellas porque me hubiese gustado más variedad de colores."'
+  },
+  {
+    id: 6,
+    name: 'Lucía P.',
+    rating: 5,
+    text: '"Increíble la experiencia de compra. Todo llegó rápido, bien empaquetado y la calidad de las prendas superó mis expectativas. Ya recomendé la tienda a mis amigas."'
   }
 ];
 
 const Testimonials = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Number of visible cards depends on screen size, but we always shift by 1
+  const getVisibleCount = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth >= 768) return 3;
+    }
+    return 1;
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getVisibleCount());
+
+  useEffect(() => {
+    const handleResize = () => setVisibleCount(getVisibleCount());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = reviews.length - visibleCount;
+
+  const next = useCallback(() => {
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [maxIndex]);
+
+  const prev = useCallback(() => {
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [maxIndex]);
+
+  // Auto-play carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      next();
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [next]);
+
   return (
     <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto section-snap">
       <div className="flex items-center justify-between mb-12">
         <h2 className="text-3xl md:text-4xl font-bold">Our Happy Customers</h2>
         <div className="flex gap-2">
-          <button className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={prev}
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+          >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors">
+          <button 
+            onClick={next}
+            className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+          >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {reviews.map((review) => (
-          <div key={review.id} className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex gap-1 text-yellow-500 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-current" />
-              ))}
+      {/* Carousel container */}
+      <div className="overflow-hidden">
+        <div 
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{
+            transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`,
+          }}
+        >
+          {reviews.map((review) => (
+            <div 
+              key={review.id} 
+              className="flex-shrink-0 px-3"
+              style={{ width: `${100 / visibleCount}%` }}
+            >
+              <div className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow h-full">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-200 fill-current'}`} 
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="font-bold">{review.name}</span>
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                </div>
+                <p className="text-gray-500 text-sm leading-relaxed">
+                  {review.text}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="font-bold">{review.name}</span>
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-            </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              {review.text}
-            </p>
-          </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-8">
+        {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              i === currentIndex ? 'bg-black w-6' : 'bg-gray-300 hover:bg-gray-400'
+            }`}
+          />
         ))}
       </div>
     </section>

@@ -55,12 +55,12 @@ const CartDrawer = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {items.map(({ product, quantity }) => {
+              {items.map(({ product, quantity, cartKey, color, size }) => {
                 const hasStock = product.stock !== null && product.stock !== undefined && product.stock > 0;
                 const atMax = hasStock && quantity >= product.stock;
                 return (
                   <div
-                    key={product.id}
+                    key={cartKey}
                     className="flex gap-4 p-3 rounded-xl bg-gray-50 group"
                   >
                     <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
@@ -74,20 +74,24 @@ const CartDrawer = () => {
                       <h3 className="font-semibold text-sm text-gray-900 truncate">
                         {product.name}
                       </h3>
-                      <p className="text-xs text-gray-400 mb-1">{product.category}</p>
+                      <p className="text-xs text-gray-400 mb-1">
+                        {product.category}
+                        {color ? ` · ${color}` : ''}
+                        {size ? ` · ${size}` : ''}
+                      </p>
                       {hasStock && (
                         <p className="text-[10px] text-gray-400 mb-1">Stock: {product.stock}</p>
                       )}
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                          onClick={() => updateQuantity(cartKey, quantity - 1)}
                           className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 transition-colors"
                         >
                           <Minus size={12} />
                         </button>
                         <span className="text-sm font-bold w-6 text-center">{quantity}</span>
                         <button
-                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                          onClick={() => updateQuantity(cartKey, quantity + 1)}
                           disabled={atMax}
                           className={`w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center transition-colors ${
                             atMax ? 'opacity-30 cursor-not-allowed' : 'hover:border-gray-400'
@@ -99,7 +103,7 @@ const CartDrawer = () => {
                     </div>
                     <div className="flex flex-col items-end justify-between">
                       <button
-                        onClick={() => removeFromCart(product.id)}
+                        onClick={() => removeFromCart(cartKey)}
                         className="text-gray-300 hover:text-red-500 transition-colors"
                       >
                         <Trash2 size={14} />

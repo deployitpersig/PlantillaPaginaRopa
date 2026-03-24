@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ const slides = [
     subtitle: "A true classic, redefining street style",
     title: "Hoodie",
     description: "Our premium heavy-weight fleece hoodie is designed for the modern street aesthetic. Built with uncompromised craftsmanship for every day comfort.",
-    image: "/hero-slide-1.png",
+    image: "/hero-slide-1-new.png",
     link: "/category/mens"
   },
   {
@@ -16,7 +16,7 @@ const slides = [
     subtitle: "Minimalist approach",
     title: "Essentials",
     description: "Stripped down to the absolute necessities without compromising on quality or style. The foundation of any modern wardrobe.",
-    image: "/hero-slide-2.png",
+    image: "/hero-slide-2-new.png",
     link: "/products"
   },
   {
@@ -24,7 +24,7 @@ const slides = [
     subtitle: "Urban exploration gear",
     title: "Techwear",
     description: "Functional apparel built for the concrete jungle. Weather-resistant materials meet cutting-edge design for ultimate mobility.",
-    image: "/hero-slide-3.png",
+    image: "/hero-slide-3-new.png",
     link: "/category/mens"
   },
   {

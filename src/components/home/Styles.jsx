@@ -111,7 +111,7 @@ const Styles = () => {
             onClick={() => handleClick(style)}
           >
             {/* Title positioning */}
-            <div className="absolute top-6 left-6 z-10">
+            <div className="absolute top-6 left-6 z-20">
               <h3 className="text-xl md:text-2xl font-bold">{style.title}</h3>
               <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
                 Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
@@ -119,12 +119,14 @@ const Styles = () => {
             </div>
             
             {/* Image */}
-            <div className="absolute bottom-0 right-0 w-2/3 h-4/5">
+            <div className="absolute inset-0 w-full h-full">
               <img 
                 src={style.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'} 
                 alt={style.title} 
-                className="w-full h-full object-contain object-bottom md:object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
+              {/* Gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/40 to-transparent"></div>
             </div>
           </div>
         ))}

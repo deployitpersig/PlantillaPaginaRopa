@@ -9,10 +9,10 @@ import MidBanner from './components/home/MidBanner';
 import Styles from './components/home/Styles';
 import Features from './components/home/Features';
 import Testimonials from './components/home/Testimonials';
-import Newsletter from './components/home/Newsletter';
 import AdminPage from './pages/AdminPage';
 import CheckoutPage from './pages/CheckoutPage';
 import CategoryPage from './pages/CategoryPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import CinematicScroll from './components/home/CinematicScroll';
 
 function HomePage() {
@@ -25,7 +25,6 @@ function HomePage() {
       <Banners />
       <Features />
       <Testimonials />
-      <Newsletter />
     </>
   );
 }
@@ -41,6 +40,7 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/products" element={<CategoryPage showAll />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
           </Routes>
         </Layout>
       </CartProvider>

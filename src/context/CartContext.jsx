@@ -8,43 +8,46 @@ export const useCart = () => {
   return ctx;
 };
 
+const getCartKey = (productId, color, size) => `${productId}_${color || ''}_${size || ''}`;
+
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const addToCart = (product) => {
-    // Stock logic: null/undefined/0 = unlimited (not managed)
-    // Only restrict if stock is a positive number
+  const addToCart = (product, options = {}) => {
+    const { color, size } = options;
     const stock = (product.stock !== null && product.stock !== undefined && product.stock > 0)
       ? product.stock
       : Infinity;
 
+    const cartKey = getCartKey(product.id, color, size);
+
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const existing = prev.find((i) => i.cartKey === cartKey);
       if (existing) {
         if (stock !== Infinity && existing.quantity >= stock) return prev;
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.cartKey === cartKey ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity: 1, cartKey, color: color || null, size: size || null }];
     });
     return true;
   };
 
-  const removeFromCart = (productId) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+  const removeFromCart = (cartKey) => {
+    setItems((prev) => prev.filter((i) => i.cartKey !== cartKey));
   };
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = (cartKey, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(cartKey);
       return;
     }
 
     setItems((prev) =>
       prev.map((i) => {
-        if (i.product.id === productId) {
+        if (i.cartKey === cartKey) {
           const stock = (i.product.stock !== null && i.product.stock !== undefined && i.product.stock > 0)
             ? i.product.stock
             : Infinity;
@@ -86,3 +89,4 @@ export const CartProvider = ({ children }) => {
     </CartContext.Provider>
   );
 };
+
