@@ -67,7 +67,7 @@ const Styles = () => {
 
   if (loading) {
     return (
-      <section className="w-full py-16 md:py-24 relative">
+      <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
         <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
           <div 
@@ -86,7 +86,7 @@ const Styles = () => {
   if (styles.length === 0) return null;
 
   return (
-    <section className="w-full py-16 md:py-24 relative">
+    <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
       <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
         
