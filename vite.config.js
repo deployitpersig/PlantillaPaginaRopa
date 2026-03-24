@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/deployit-e-commerce/',
   plugins: [react()],
   server: {
     open: true
