@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 
 const CinematicScroll = () => {
   useEffect(() => {
+    // Disable cinematic scroll on mobile devices by returning early
+    if (window.innerWidth < 768) return;
+
     let isTweening = false;
     let touchStartY = 0;
     
