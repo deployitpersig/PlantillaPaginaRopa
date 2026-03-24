@@ -16,16 +16,26 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, options = {}) => {
     const { color, size } = options;
-    const stock = (product.stock !== null && product.stock !== undefined && product.stock > 0)
-      ? product.stock
-      : Infinity;
+    
+    let baseStock = Infinity;
+    if (size && product.stock_by_size && typeof product.stock_by_size[size] === 'number') {
+      baseStock = product.stock_by_size[size];
+    } else if (product.stock !== null && product.stock !== undefined && product.stock >= 0) {
+      baseStock = product.stock;
+    }
 
     const cartKey = getCartKey(product.id, color, size);
+    const existing = items.find((i) => i.cartKey === cartKey);
+    const currentQty = existing ? existing.quantity : 0;
+
+    if (currentQty + 1 > baseStock) {
+      alert(`No hay más stock disponible. Máximo: ${baseStock} unidad(es).`);
+      return false;
+    }
 
     setItems((prev) => {
-      const existing = prev.find((i) => i.cartKey === cartKey);
-      if (existing) {
-        if (stock !== Infinity && existing.quantity >= stock) return prev;
+      const prevExisting = prev.find((i) => i.cartKey === cartKey);
+      if (prevExisting) {
         return prev.map((i) =>
           i.cartKey === cartKey ? { ...i, quantity: i.quantity + 1 } : i
         );
@@ -45,17 +55,23 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
+    const targetItem = items.find((i) => i.cartKey === cartKey);
+    if (!targetItem) return;
+
+    let baseStock = Infinity;
+    if (targetItem.size && targetItem.product.stock_by_size && typeof targetItem.product.stock_by_size[targetItem.size] === 'number') {
+      baseStock = targetItem.product.stock_by_size[targetItem.size];
+    } else if (targetItem.product.stock !== null && targetItem.product.stock !== undefined && targetItem.product.stock >= 0) {
+      baseStock = targetItem.product.stock;
+    }
+
+    if (quantity > baseStock) {
+      alert(`No hay más stock disponible. Máximo: ${baseStock} unidad(es).`);
+      return;
+    }
+
     setItems((prev) =>
-      prev.map((i) => {
-        if (i.cartKey === cartKey) {
-          const stock = (i.product.stock !== null && i.product.stock !== undefined && i.product.stock > 0)
-            ? i.product.stock
-            : Infinity;
-          const safeQty = stock !== Infinity ? Math.min(quantity, stock) : quantity;
-          return { ...i, quantity: safeQty };
-        }
-        return i;
-      })
+      prev.map((i) => (i.cartKey === cartKey ? { ...i, quantity } : i))
     );
   };
 

@@ -1,13 +1,13 @@
-﻿import React from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Banners = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full flex flex-col md:flex-row h-auto md:h-screen section-snap">
+    <section className="w-full flex flex-col md:flex-row min-h-[100dvh] md:h-[100dvh] section-snap">
       {/* Left Banner - New Arrivals */}
-      <div className="relative w-full md:w-1/2 h-[400px] md:h-full bg-gray-900 overflow-hidden group">
+      <div className="relative w-full md:w-1/2 flex-1 md:h-full bg-gray-900 overflow-hidden group">
         <img 
           src="https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&q=80&w=1000" 
           alt="New Arrivals in streetwear"
@@ -28,7 +28,7 @@ const Banners = () => {
       </div>
 
       {/* Right Banner - Sale */}
-      <div className="relative w-full md:w-1/2 h-[400px] md:h-full bg-red-900 overflow-hidden group">
+      <div className="relative w-full md:w-1/2 flex-1 md:h-full bg-red-900 overflow-hidden group">
         <img 
           src="https://images.unsplash.com/photo-1607082350899-7e105aa886ae?auto=format&fit=crop&q=80&w=1000" 
           alt="Sale Season" 

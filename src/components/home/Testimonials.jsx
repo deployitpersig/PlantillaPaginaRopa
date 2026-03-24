@@ -83,72 +83,74 @@ const Testimonials = () => {
   }, [next]);
 
   return (
-    <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto section-snap">
-      <div className="flex items-center justify-between mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold">Our Happy Customers</h2>
-        <div className="flex gap-2">
-          <button 
-            onClick={prev}
-            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={next}
-            className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Carousel container */}
-      <div className="overflow-hidden">
-        <div 
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{
-            transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`,
-          }}
-        >
-          {reviews.map((review) => (
-            <div 
-              key={review.id} 
-              className="flex-shrink-0 px-3"
-              style={{ width: `${100 / visibleCount}%` }}
+    <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold">Our Happy Customers</h2>
+          <div className="flex gap-2">
+            <button 
+              onClick={prev}
+              className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
             >
-              <div className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow h-full">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-200 fill-current'}`} 
-                    />
-                  ))}
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={next}
+              className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel container */}
+        <div className="overflow-hidden">
+          <div 
+            className="flex transition-transform duration-500 ease-in-out py-4"
+            style={{
+              transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`,
+            }}
+          >
+            {reviews.map((review) => (
+              <div 
+                key={review.id} 
+                className="flex-shrink-0 px-3"
+                style={{ width: `${100 / visibleCount}%` }}
+              >
+                <div className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow h-full">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-200 fill-current'}`} 
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="font-bold">{review.name}</span>
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  </div>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {review.text}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="font-bold">{review.name}</span>
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                </div>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {review.text}
-                </p>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentIndex(i)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                i === currentIndex ? 'bg-black w-6' : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+            />
           ))}
         </div>
-      </div>
-
-      {/* Dot indicators */}
-      <div className="flex justify-center gap-2 mt-8">
-        {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentIndex(i)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              i === currentIndex ? 'bg-black w-6' : 'bg-gray-300 hover:bg-gray-400'
-            }`}
-          />
-        ))}
       </div>
     </section>
   );

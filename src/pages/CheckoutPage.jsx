@@ -61,20 +61,49 @@ const CheckoutPage = () => {
 
       if (fetchError) throw new Error('Error verificando stock. Intentá de nuevo.');
 
-      // Check stock availability
       const stockMap = {};
       (currentProducts || []).forEach(p => { stockMap[p.id] = p; });
 
+      // Accumulate requested quantities by product and size
+      const requestsByProduct = {};
+      
       for (const item of items) {
-        const dbProduct = stockMap[item.product.id];
-        if (!dbProduct) {
-          throw new Error(`Producto "${item.product.name}" ya no está disponible.`);
+        const pid = item.product.id;
+        if (!requestsByProduct[pid]) {
+          requestsByProduct[pid] = { total: 0, bySize: {} };
         }
-        const currentStock = dbProduct.stock ?? Infinity;
-        if (currentStock !== Infinity && currentStock < item.quantity) {
-          throw new Error(
-            `Stock insuficiente para "${dbProduct.name}". Disponible: ${currentStock}, pedido: ${item.quantity}.`
-          );
+        requestsByProduct[pid].total += item.quantity;
+        
+        if (item.size) {
+          requestsByProduct[pid].bySize[item.size] = (requestsByProduct[pid].bySize[item.size] || 0) + item.quantity;
+        } else {
+          requestsByProduct[pid].bySize['NO_SIZE'] = (requestsByProduct[pid].bySize['NO_SIZE'] || 0) + item.quantity;
+        }
+      }
+
+      // Check stock availability
+      for (const [pid, request] of Object.entries(requestsByProduct)) {
+        const dbProduct = stockMap[pid];
+        if (!dbProduct) {
+          throw new Error('Un producto ya no está disponible.');
+        }
+        
+        // Check size specific stock
+        if (dbProduct.stock_by_size && Object.keys(dbProduct.stock_by_size).length > 0) {
+          for (const [size, qty] of Object.entries(request.bySize)) {
+            if (size !== 'NO_SIZE') {
+              const available = dbProduct.stock_by_size[size] || 0;
+              if (available < qty) {
+                throw new Error(`Stock insuficiente para "${dbProduct.name}" en talle ${size}. Disponible: ${available}, pedido: ${qty}.`);
+              }
+            }
+          }
+        }
+        
+        // Check total stock fallback
+        const currentTotalStock = dbProduct.stock ?? Infinity;
+        if (currentTotalStock !== Infinity && currentTotalStock < request.total) {
+          throw new Error(`Stock general insuficiente para "${dbProduct.name}". Disponible: ${currentTotalStock}, pedido: ${request.total}.`);
         }
       }
 
@@ -91,6 +120,8 @@ const CheckoutPage = () => {
           price: i.product.price,
           quantity: i.quantity,
           image: i.product.image,
+          size: i.size || null,
+          color: i.color || null
         })),
         total: totalPrice,
         payment_method: paymentMethod,
@@ -100,26 +131,34 @@ const CheckoutPage = () => {
       const { error: orderError } = await supabase.from('orders').insert(orderData);
       if (orderError) throw new Error('Error al crear el pedido. Intentá de nuevo.');
 
-      // 3. Decrement stock and increment sold_count for each product (if columns exist)
-      const stockUpdates = items.map(async (item) => {
-        const dbProduct = stockMap[item.product.id];
+      // 3. Decrement stock and increment sold_count for each product
+      const stockUpdates = Object.entries(requestsByProduct).map(async ([pid, request]) => {
+        const dbProduct = stockMap[pid];
         const updatePayload = {};
 
-        // Only update stock if the column has a value
         if (dbProduct.stock !== undefined && dbProduct.stock !== null) {
-          updatePayload.stock = Math.max(0, dbProduct.stock - item.quantity);
+          updatePayload.stock = Math.max(0, dbProduct.stock - request.total);
         }
 
-        // Only update sold_count if the column has a value
+        if (dbProduct.stock_by_size && Object.keys(dbProduct.stock_by_size).length > 0) {
+          const newStockBySize = { ...dbProduct.stock_by_size };
+          for (const [size, qty] of Object.entries(request.bySize)) {
+            if (size !== 'NO_SIZE' && newStockBySize[size] !== undefined) {
+              newStockBySize[size] = Math.max(0, newStockBySize[size] - qty);
+            }
+          }
+          updatePayload.stock_by_size = newStockBySize;
+        }
+
         if (dbProduct.sold_count !== undefined && dbProduct.sold_count !== null) {
-          updatePayload.sold_count = dbProduct.sold_count + item.quantity;
+          updatePayload.sold_count = dbProduct.sold_count + request.total;
         }
 
         if (Object.keys(updatePayload).length > 0) {
           return supabase
             .from('products')
             .update(updatePayload)
-            .eq('id', item.product.id);
+            .eq('id', pid);
         }
       });
 

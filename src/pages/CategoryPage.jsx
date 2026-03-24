@@ -45,6 +45,12 @@ const CATEGORY_CONFIG = {
 
 // Helper: only out of stock if stock was depleted through actual sales
 const isOutOfStock = (product) => {
+  if (product.stock_by_size && Object.keys(product.stock_by_size).length > 0) {
+    const totalSizesStock = Object.values(product.stock_by_size).reduce((sum, curr) => sum + (parseInt(curr, 10) || 0), 0);
+    if (totalSizesStock > 0) return false;
+    if (product.sold_count && product.sold_count > 0) return true;
+    return false;
+  }
   if (product.stock === null || product.stock === undefined) return false;
   if (product.stock > 0) return false;
   if (product.sold_count && product.sold_count > 0) return true;
@@ -69,8 +75,12 @@ const CategoryPage = ({ showAll = false }) => {
   const subcategories = SUBCATEGORIES[slug] || [];
 
   useEffect(() => {
-    setActiveFilters([]);
-  }, [slug]);
+    if (location.state?.subcategory) {
+      setActiveFilters([location.state.subcategory]);
+    } else {
+      setActiveFilters([]);
+    }
+  }, [slug, location.key]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -121,6 +131,11 @@ const CategoryPage = ({ showAll = false }) => {
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
     if (isOutOfStock(product)) return;
+    if (product.sizes && product.sizes.length > 0 && product.stock_by_size) {
+      // If product has sizes and stock per size, redirect to details page to choose size
+      navigate(`/product/${product.id}`);
+      return;
+    }
     addToCart(product);
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1200);

@@ -81,17 +81,19 @@ const Styles = () => {
     else if (cat.includes('men')) slug = 'mens';
 
     // Navigate to category page — the subcategory filter will be available as pills
-    navigate(`/category/${slug}`);
+    navigate(`/category/${slug}`, { state: { subcategory: style.title } });
   };
 
   if (loading) {
     return (
-      <section className="py-16 md:py-24 w-full flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto flex-shrink-0 section-snap">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
-        <div className="grid grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-6 rounded-3xl w-full">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className={`bg-gray-200 rounded-2xl animate-pulse ${LAYOUT[i - 1]}`} />
-          ))}
+      <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
+        <div className="w-full px-6 md:px-12 max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
+          <div className="grid grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-6 rounded-3xl w-full">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className={`bg-gray-200 rounded-2xl animate-pulse ${LAYOUT[i - 1]}`} />
+            ))}
+          </div>
         </div>
       </section>
     );
@@ -100,36 +102,38 @@ const Styles = () => {
   if (styles.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 w-full flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto flex-shrink-0 section-snap">
-      <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
-      
-      <div className="grid grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-6 rounded-3xl w-full">
-        {styles.map((style, index) => (
-          <div 
-            key={style.title} 
-            className={`relative bg-white rounded-2xl overflow-hidden group cursor-pointer ${style.colSpan}`}
-            onClick={() => handleClick(style)}
-          >
-            {/* Title positioning */}
-            <div className="absolute top-6 left-6 z-20">
-              <h3 className="text-xl md:text-2xl font-bold">{style.title}</h3>
-              <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
-                Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-              </p>
+    <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
+      <div className="w-full px-6 md:px-12 max-w-7xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
+        
+        <div className="grid grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-6 rounded-3xl w-full">
+          {styles.map((style, index) => (
+            <div 
+              key={style.title} 
+              className={`relative bg-white rounded-2xl overflow-hidden group cursor-pointer ${style.colSpan}`}
+              onClick={() => handleClick(style)}
+            >
+              {/* Title positioning */}
+              <div className="absolute top-6 left-6 z-20">
+                <h3 className="text-xl md:text-2xl font-bold">{style.title}</h3>
+                <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
+                  Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                </p>
+              </div>
+              
+              {/* Image */}
+              <div className="absolute inset-0 w-full h-full">
+                <img 
+                  src={style.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'} 
+                  alt={style.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                {/* Gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/40 to-transparent"></div>
+              </div>
             </div>
-            
-            {/* Image */}
-            <div className="absolute inset-0 w-full h-full">
-              <img 
-                src={style.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'} 
-                alt={style.title} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              {/* Gradient overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/40 to-transparent"></div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

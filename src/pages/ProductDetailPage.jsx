@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Plus, Minus, Check, Loader2, Truck, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Check, Loader2, Truck, RotateCcw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import ImageLightbox from '../components/product/ImageLightbox';
@@ -14,7 +14,6 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [added, setAdded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -35,7 +34,14 @@ const ProductDetailPage = () => {
         const colors = data.colors || [];
         const sizes = data.sizes || [];
         if (colors.length > 0) setSelectedColor(colors[0]);
-        if (sizes.length > 0) setSelectedSize(sizes[0]);
+        if (sizes.length > 0) {
+          if (data.stock_by_size && Object.keys(data.stock_by_size).length > 0) {
+            const availableSize = sizes.find(sz => (data.stock_by_size[sz] || 0) > 0);
+            setSelectedSize(availableSize || sizes[0]);
+          } else {
+            setSelectedSize(sizes[0]);
+          }
+        }
       } catch (err) {
         console.error('Error fetching product:', err);
       }
@@ -54,10 +60,12 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
-    addToCart(product, { color: selectedColor, size: selectedSize });
-    setAdded(true);
-    setIsOpen(true);
-    setTimeout(() => setAdded(false), 2000);
+    const success = addToCart(product, { color: selectedColor, size: selectedSize });
+    if (success) {
+      setAdded(true);
+      setIsOpen(true);
+      setTimeout(() => setAdded(false), 2000);
+    }
   };
 
   const toggleSection = (key) => {
@@ -172,15 +180,6 @@ const ProductDetailPage = () => {
                 {product.name}
               </h1>
             </div>
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="ml-4 mt-1 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <Heart
-                size={22}
-                className={isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}
-              />
-            </button>
           </div>
 
           {/* Price */}
@@ -266,46 +265,70 @@ const ProductDetailPage = () => {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold uppercase tracking-wider">Talle</span>
+                {product.stock_by_size && selectedSize && (
+                  <span className="text-xs text-gray-400 font-medium">
+                    {product.stock_by_size[selectedSize] || 0} disponibles
+                  </span>
+                )}
                 <button className="text-xs text-gray-500 underline hover:text-black transition-colors">
                   GUÍA DE TALLES
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`min-w-[44px] h-[44px] px-3 border text-sm font-semibold transition-all ${
-                      selectedSize === size
-                        ? 'bg-black text-white border-black'
-                        : 'bg-white text-gray-900 border-gray-200 hover:border-black'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {sizes.map((size) => {
+                  const szStock = product.stock_by_size ? (product.stock_by_size[size] || 0) : null;
+                  const isSzOut = szStock !== null && szStock <= 0;
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => { if (!isSzOut) setSelectedSize(size); }}
+                      disabled={isSzOut}
+                      className={`min-w-[44px] h-[44px] px-3 border text-sm font-semibold transition-all ${
+                        selectedSize === size
+                          ? 'bg-black text-white border-black'
+                          : isSzOut
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+                            : 'bg-white text-gray-900 border-gray-200 hover:border-black'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={added}
-            className={`w-full py-4 text-sm font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
-              added
-                ? 'bg-green-600 text-white'
-                : 'bg-black text-white hover:bg-gray-800 active:scale-[0.98]'
-            }`}
-          >
-            {added ? (
-              <>
-                <Check size={18} /> AGREGADO
-              </>
-            ) : (
-              'AGREGAR'
-            )}
-          </button>
+          {(() => {
+            const outOfStockFlag = sizes.length > 0 && product.stock_by_size && selectedSize
+              ? (product.stock_by_size[selectedSize] || 0) <= 0
+              : (product.stock !== null && product.stock !== undefined && product.stock <= 0 && (!product.stock_by_size || Object.keys(product.stock_by_size).length === 0));
+              
+            return (
+              <button
+                onClick={handleAddToCart}
+                disabled={added || outOfStockFlag}
+                className={`w-full py-4 text-sm font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+                  added
+                    ? 'bg-green-600 text-white'
+                    : outOfStockFlag
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-black text-white hover:bg-gray-800 active:scale-[0.98]'
+                }`}
+              >
+                {added ? (
+                  <>
+                    <Check size={18} /> AGREGADO
+                  </>
+                ) : outOfStockFlag ? (
+                  'SIN STOCK'
+                ) : (
+                  'AGREGAR'
+                )}
+              </button>
+            );
+          })()}
 
           {/* Collapsible Sections */}
           <div className="mt-8 border-t border-gray-100">

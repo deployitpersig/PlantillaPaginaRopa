@@ -2,8 +2,8 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t border-gray-100 pt-16 pb-8 px-6 md:px-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-white border-t border-gray-100 pt-8 pb-8 px-6 md:px-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
         {/* Brand */}
         <div>
           <h3 className="text-2xl font-black tracking-tighter mb-4">Hoodie.</h3>

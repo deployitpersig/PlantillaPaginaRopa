@@ -14,7 +14,9 @@ const CATEGORY_LABELS = {
   kids: "Kids",
 };
 
-const ChipInput = ({ label, icon: Icon, values, onChange, placeholder }) => {
+export const PREDEFINED_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Unico'];
+
+const ChipInput = ({ label, icon: Icon, values, onChange, placeholder, options }) => {
   const [input, setInput] = useState('');
 
   const addChip = () => {
@@ -45,18 +47,36 @@ const ChipInput = ({ label, icon: Icon, values, onChange, placeholder }) => {
         ))}
       </div>
       <div className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addChip(); } }}
-          placeholder={placeholder}
-          className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black focus:bg-white transition-all placeholder:text-gray-300"
-        />
+        {options ? (
+          <div className="relative flex-1">
+            <select
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black focus:bg-white transition-all appearance-none cursor-pointer"
+            >
+              <option value="" disabled>Seleccionar...</option>
+              {options.filter(opt => !values.includes(opt)).map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addChip(); } }}
+            placeholder={placeholder}
+            className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black focus:bg-white transition-all placeholder:text-gray-300"
+          />
+        )}
         <button
           type="button"
           onClick={addChip}
-          className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-colors"
+          className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-colors shrink-0"
         >
           +
         </button>
@@ -74,17 +94,18 @@ const ProductForm = ({ product, onClose, onSave }) => {
     subcategory: product?.subcategory || '',
     price: product?.price || '',
     original_price: product?.original_price || '',
-    price_without_tax: product?.price_without_tax || '',
     discount: product?.discount || '',
     description: product?.description || '',
     image: product?.image || '',
-    tag: product?.tag || '',
+
     stock: product?.stock ?? 0,
     new_collection: product?.new_collection ?? false,
     colors: product?.colors || [],
     sizes: product?.sizes || [],
     badges: product?.badges || [],
   });
+
+  const [stockBySize, setStockBySize] = useState(product?.stock_by_size || {});
 
   // Multi-image support
   const existingImages = product?.images || (product?.image ? [product.image] : []);
@@ -193,12 +214,12 @@ const ProductForm = ({ product, onClose, onSave }) => {
         subcategory: form.subcategory || null,
         price: parseFloat(form.price),
         original_price: form.original_price ? parseFloat(form.original_price) : null,
-        price_without_tax: form.price_without_tax ? parseFloat(form.price_without_tax) : null,
+
         discount: form.discount || null,
         description: form.description || null,
         image: allImages[0] || null,
         images: allImages,
-        tag: form.tag || null,
+
         new_collection: !!form.new_collection,
         colors: form.colors.length > 0 ? form.colors : [],
         sizes: form.sizes.length > 0 ? form.sizes : [],
@@ -206,8 +227,18 @@ const ProductForm = ({ product, onClose, onSave }) => {
       };
 
       const stockValue = parseInt(form.stock, 10);
-      if (!isNaN(stockValue)) {
-        payload.stock = stockValue;
+      if (form.sizes.length > 0) {
+        let calculatedStock = 0;
+        Object.values(stockBySize).forEach(val => {
+          calculatedStock += (parseInt(val, 10) || 0);
+        });
+        payload.stock = calculatedStock;
+        payload.stock_by_size = stockBySize;
+      } else {
+        if (!isNaN(stockValue)) {
+          payload.stock = stockValue;
+        }
+        payload.stock_by_size = {};
       }
 
       try {
@@ -217,6 +248,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
         if (err.message && (err.message.includes('stock') || err.message.includes('column') || err.message.includes('subcategory'))) {
           delete payload.stock;
           delete payload.subcategory;
+          if (err.message.includes('stock_by_size')) delete payload.stock_by_size;
           try {
             await onSave(payload, product?.id);
             onClose();
@@ -381,7 +413,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
           </div>
 
           {/* Price Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className={labelClass}><DollarSign size={11} /> Precio Original</label>
               <input type="number" name="original_price" value={form.original_price} onChange={handleChange} step="0.01" min="0" placeholder="0.00" className={inputClass} />
@@ -397,10 +429,6 @@ const ProductForm = ({ product, onClose, onSave }) => {
                 readOnly={!!(form.original_price && form.discount)}
                 className={`${inputClass} ${form.original_price && form.discount ? 'bg-green-50 border-green-200 text-green-700 font-semibold' : ''}`}
               />
-            </div>
-            <div>
-              <label className={labelClass}><DollarSign size={11} /> Sin Impuestos</label>
-              <input type="number" name="price_without_tax" value={form.price_without_tax} onChange={handleChange} step="0.01" min="0" placeholder="0.00" className={inputClass} />
             </div>
           </div>
 
@@ -431,8 +459,28 @@ const ProductForm = ({ product, onClose, onSave }) => {
             label="Talles disponibles"
             icon={Ruler}
             values={form.sizes}
-            onChange={(sizes) => setForm(prev => ({ ...prev, sizes }))}
-            placeholder="Ej: S, M, L, XL"
+            options={PREDEFINED_SIZES}
+            onChange={(sizes) => {
+              const sortedSizes = [...sizes].sort((a, b) => {
+                const idxA = PREDEFINED_SIZES.indexOf(a);
+                const idxB = PREDEFINED_SIZES.indexOf(b);
+                if (idxA === -1) return 1;
+                if (idxB === -1) return -1;
+                return idxA - idxB;
+              });
+              setForm(prev => ({ ...prev, sizes: sortedSizes }));
+              setStockBySize(prev => {
+                const next = { ...prev };
+                Object.keys(next).forEach(sz => {
+                  if (!sortedSizes.includes(sz)) delete next[sz];
+                });
+                sortedSizes.forEach(sz => {
+                  if (next[sz] === undefined) next[sz] = 0;
+                });
+                return next;
+              });
+            }}
+            placeholder="Seleccionar talle"
           />
 
           {/* Badges */}
@@ -444,17 +492,33 @@ const ProductForm = ({ product, onClose, onSave }) => {
             placeholder="Ej: PRODUCTO IMPORTADO"
           />
 
-          {/* Tag & Stock */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Stock */}
+          {form.sizes.length > 0 ? (
             <div>
-              <label className={labelClass}><Tag size={11} /> Tag / Etiqueta</label>
-              <input type="text" name="tag" value={form.tag} onChange={handleChange} placeholder="Ej: Top Seller" className={inputClass} />
+              <label className={labelClass}><Package size={11} /> Stock por talle</label>
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                {form.sizes.map(sz => (
+                  <div key={sz} className="flex flex-col">
+                    <span className="text-xs text-gray-500 font-medium mb-1">Talle {sz}</span>
+                    <input
+                      type="number"
+                      value={stockBySize[sz] ?? ''}
+                      onChange={(e) => setStockBySize(prev => ({ ...prev, [sz]: parseInt(e.target.value, 10) || 0 }))}
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      className={inputClass}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
+          ) : (
             <div>
-              <label className={labelClass}><Package size={11} /> Stock</label>
+              <label className={labelClass}><Package size={11} /> Stock General</label>
               <input type="number" name="stock" value={form.stock} onChange={handleChange} min="0" step="1" placeholder="0" className={inputClass} />
             </div>
-          </div>
+          )}
 
           {/* Submit */}
           <button

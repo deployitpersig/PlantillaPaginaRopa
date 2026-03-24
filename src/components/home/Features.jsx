@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, X, MessageCircle } from 'lucide-react';
+import { LocationMap } from '../ui/expand-map';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/deployit.ok';
 const INSTAGRAM_HANDLE = '@deployit.ok';
@@ -106,7 +107,7 @@ const Features = () => {
     <section
       ref={sectionRef}
       id="quienes-somos"
-      className="w-full bg-[#0a0a0a] min-h-screen flex items-center py-14 md:py-20 px-6 md:px-12 section-snap"
+      className="w-full bg-[#0a0a0a] min-h-[100dvh] flex flex-col justify-center items-center py-14 md:py-20 px-6 md:px-12 section-snap"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="max-w-6xl mx-auto text-center w-full">
@@ -133,60 +134,8 @@ const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
 
           {/* Map Block — col-span-3 */}
-          <div className="md:col-span-3 relative rounded-2xl border border-white/10 overflow-hidden bg-[#111] transition-all duration-500" style={{ minHeight: '260px' }}>
-            {!mapOpen ? (
-              /* Placeholder */
-              <button
-                onClick={() => setMapOpen(true)}
-                className="w-full h-full flex flex-col items-center justify-center gap-3 group cursor-pointer transition-all duration-500"
-                style={{ minHeight: '260px' }}
-              >
-                <div className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white/30 group-hover:bg-white/5 transition-all duration-500">
-                  <MapPin className="w-5 h-5 text-[#888] group-hover:text-[#f0f0f0] transition-colors duration-500" />
-                </div>
-                <span className="text-[#888] text-xs tracking-widest uppercase group-hover:text-[#f0f0f0] transition-colors duration-500 font-extralight" style={{ fontWeight: 200 }}>
-                  Ver ubicación
-                </span>
-              </button>
-            ) : (
-              /* Map expanded */
-              <div className="relative w-full h-full" style={{ minHeight: '260px', animation: 'quienesMapIn 600ms ease-out forwards' }}>
-                {/* Loading pin — disappears when iframe loads */}
-                {!mapLoaded && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 gap-3" style={{ animation: 'quienesPinDrop 600ms ease-out forwards' }}>
-                    <MapPin className="w-8 h-8 text-[#f0f0f0]" />
-                    <span className="text-[#888] text-xs tracking-widest uppercase font-extralight" style={{ fontWeight: 200 }}>Cargando mapa…</span>
-                  </div>
-                )}
-                {/* Google Maps iframe — lazy loaded only when mapOpen is true */}
-                <iframe
-                  title="Ubicación"
-                  src={MAP_EMBED_URL}
-                  className="w-full h-full border-0 grayscale contrast-[1.1] brightness-[0.4]"
-                  style={{ minHeight: '260px' }}
-                  loading="lazy"
-                  allowFullScreen={false}
-                  referrerPolicy="no-referrer-when-downgrade"
-                  onLoad={() => setMapLoaded(true)}
-                />
-                {/* Close button */}
-                <button
-                  onClick={() => { setMapOpen(false); setMapLoaded(false); }}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-[#888] hover:text-white hover:border-white/30 transition-all duration-300 z-20"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                {/* Address footer */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3 z-10"
-                  style={{ animation: 'quienesSlideUp 500ms 300ms ease-out both' }}
-                >
-                  <p className="text-[#f0f0f0] text-xs tracking-wider font-extralight" style={{ fontWeight: 200 }}>
-                    📍 {MAP_ADDRESS}
-                  </p>
-                </div>
-              </div>
-            )}
+          <div className="md:col-span-3 relative transition-all duration-500" style={{ minHeight: '260px' }}>
+            <LocationMap location="Rosario, SF" coordinates="32° 56' 48.5 S, 60° 38' 21.5 W" className="h-[260px] md:h-full" />
           </div>
 
           {/* Right column — Instagram + WhatsApp stacked */}

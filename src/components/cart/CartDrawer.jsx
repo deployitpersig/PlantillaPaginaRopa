@@ -24,91 +24,97 @@ const CartDrawer = () => {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 z-[95] h-full w-full max-w-md bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 right-0 z-[95] flex flex-col w-full max-w-md bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <ShoppingBag size={20} />
-            <h2 className="font-bold text-lg">Tu Carrito</h2>
-            <span className="bg-black text-white text-xs px-2 py-0.5 rounded-full font-bold">
+        <div className="flex items-center justify-between px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <ShoppingBag className="w-5 h-5" />
+            <h2 className="font-bold text-base md:text-lg">Tu Carrito</h2>
+            <span className="bg-black text-white text-[10px] md:text-xs px-2 py-0.5 rounded-full font-bold">
               {totalItems}
             </span>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-gray-900 transition-colors"
+            className="text-gray-400 hover:text-gray-900 transition-colors p-1"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Items */}
-        <div className="flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-300">
-              <ShoppingBag size={48} strokeWidth={1} className="mb-4" />
+            <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-gray-300">
+              <ShoppingBag strokeWidth={1} className="mb-4 w-10 h-10 md:w-12 md:h-12" />
               <p className="text-sm font-medium">Tu carrito está vacío</p>
-              <p className="text-xs mt-1">Agregá productos para comenzar</p>
+              <p className="text-xs mt-1 text-center">Agregá productos para comenzar</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {items.map(({ product, quantity, cartKey, color, size }) => {
-                const hasStock = product.stock !== null && product.stock !== undefined && product.stock > 0;
-                const atMax = hasStock && quantity >= product.stock;
+                let currentStock = Infinity;
+                if (size && product.stock_by_size && typeof product.stock_by_size[size] === 'number') {
+                  currentStock = product.stock_by_size[size];
+                } else if (product.stock !== null && product.stock !== undefined && product.stock >= 0) {
+                  currentStock = product.stock;
+                }
+                const hasStock = currentStock !== Infinity;
+                const atMax = hasStock && quantity >= currentStock;
                 return (
                   <div
                     key={cartKey}
-                    className="flex gap-4 p-3 rounded-xl bg-gray-50 group"
+                    className="flex gap-3 md:gap-4 p-3 rounded-xl bg-gray-50 group"
                   >
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
                       <img
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-gray-900 truncate">
+                    <div className="flex-1 min-w-0 flex flex-col">
+                      <h3 className="font-semibold text-xs md:text-sm text-gray-900 truncate">
                         {product.name}
                       </h3>
-                      <p className="text-xs text-gray-400 mb-1">
+                      <p className="text-[10px] md:text-xs text-gray-400 mb-1">
                         {product.category}
                         {color ? ` · ${color}` : ''}
                         {size ? ` · ${size}` : ''}
                       </p>
                       {hasStock && (
-                        <p className="text-[10px] text-gray-400 mb-1">Stock: {product.stock}</p>
+                        <p className="text-[9px] md:text-[10px] text-gray-400 mb-1 hidden md:block">Stock: {currentStock}</p>
                       )}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 md:gap-2 mt-auto">
                         <button
                           onClick={() => updateQuantity(cartKey, quantity - 1)}
-                          className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 transition-colors"
+                          className="w-6 h-6 md:w-7 md:h-7 rounded-md md:rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 transition-colors shrink-0"
                         >
-                          <Minus size={12} />
+                          <Minus className="w-3 h-3 md:w-[12px] md:h-[12px]" />
                         </button>
-                        <span className="text-sm font-bold w-6 text-center">{quantity}</span>
+                        <span className="text-xs md:text-sm font-bold w-5 md:w-6 text-center">{quantity}</span>
                         <button
                           onClick={() => updateQuantity(cartKey, quantity + 1)}
                           disabled={atMax}
-                          className={`w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center transition-colors ${
+                          className={`w-6 h-6 md:w-7 md:h-7 rounded-md md:rounded-lg bg-white border border-gray-200 flex items-center justify-center transition-colors shrink-0 ${
                             atMax ? 'opacity-30 cursor-not-allowed' : 'hover:border-gray-400'
                           }`}
                         >
-                          <Plus size={12} />
+                          <Plus className="w-3 h-3 md:w-[12px] md:h-[12px]" />
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end justify-between">
+                    <div className="flex flex-col items-end justify-between pl-1 md:pl-0">
                       <button
                         onClick={() => removeFromCart(cartKey)}
-                        className="text-gray-300 hover:text-red-500 transition-colors"
+                        className="text-gray-300 hover:text-red-500 transition-colors p-1 md:p-0"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 className="w-3.5 h-3.5 md:w-[14px] md:h-[14px]" />
                       </button>
-                      <span className="font-bold text-sm">
+                      <span className="font-bold text-xs md:text-sm whitespace-nowrap">
                         USD {(Number(product.price) * quantity).toFixed(2)}
                       </span>
                     </div>
@@ -121,14 +127,14 @@ const CartDrawer = () => {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-500">Subtotal</span>
-              <span className="font-bold text-lg">USD {totalPrice.toFixed(2)}</span>
+          <div className="p-4 md:p-6 bg-white border-t border-gray-100 shrink-0">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <span className="text-xs md:text-sm text-gray-500">Subtotal</span>
+              <span className="font-bold text-base md:text-lg">USD {totalPrice.toFixed(2)}</span>
             </div>
             <button
               onClick={handleCheckout}
-              className="w-full bg-black text-white py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors"
+              className="w-full bg-black text-white py-3 md:py-4 rounded-full font-semibold text-sm md:text-base hover:bg-gray-800 transition-colors"
             >
               Ir al Checkout
             </button>

@@ -5,7 +5,7 @@ const MidBanner = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full relative h-screen flex items-center justify-center overflow-hidden section-snap">
+    <section className="w-full relative h-[100dvh] flex items-center justify-center overflow-hidden section-snap">
       {/* Background Video */}
       <video
         autoPlay
@@ -14,7 +14,7 @@ const MidBanner = () => {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="/videopagina.mp4" type="video/mp4" />
+        <source src={import.meta.env.BASE_URL + "videopagina.mp4"} type="video/mp4" />
       </video>
       
       {/* Dark Overlay for better contrast on text */}
