@@ -23,7 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-public/videopagina.mp4
 
 # Environment variables
 .env
