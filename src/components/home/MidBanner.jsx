@@ -1,6 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MidBanner = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="w-full relative h-screen flex items-center justify-center overflow-hidden section-snap">
       {/* Background Video */}
@@ -27,7 +30,10 @@ const MidBanner = () => {
         <p className="text-gray-300 text-sm md:text-base max-w-lg mb-10 leading-relaxed">
           Discover pieces that define who you are. Crafted with precision, designed for the bold.
         </p>
-        <button className="bg-white text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95">
+        <button
+          onClick={() => navigate('/category/new-collection')}
+          className="bg-white text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95"
+        >
           View Collection
         </button>
       </div>

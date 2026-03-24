@@ -16,20 +16,25 @@ const CATEGORY_CONFIG = {
     description: 'Discover our latest drops and newest additions to the collection.',
     filter: (query) => query.order('created_at', { ascending: false }),
   },
+  'new-collection': {
+    title: 'New Collection',
+    description: 'Discover our latest drops and newest additions to the collection.',
+    filter: (query) => query.eq('new_collection', true).order('created_at', { ascending: false }),
+  },
   mens: {
     title: 'Mens',
     description: 'Explore our complete mens collection — from streetwear to essentials.',
-    filter: (query) => query.ilike('category', '%men%'),
+    filter: (query) => query.eq('category', 'mens'),
   },
   womens: {
     title: 'Womens',
     description: 'Shop the latest womens styles — curated for comfort and confidence.',
-    filter: (query) => query.ilike('category', '%women%'),
+    filter: (query) => query.eq('category', 'womens'),
   },
   kids: {
     title: 'Kids',
     description: 'Fun, durable and stylish pieces for the little ones.',
-    filter: (query) => query.ilike('category', '%kid%'),
+    filter: (query) => query.eq('category', 'kids'),
   },
   sale: {
     title: 'Sale',

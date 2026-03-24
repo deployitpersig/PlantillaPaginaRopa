@@ -8,7 +8,7 @@ import CartDrawer from '../cart/CartDrawer';
 import LoginModal from '../auth/LoginModal';
 
 const NAV_ITEMS = [
-  { label: 'new arrivals', path: '/category/new-arrivals' },
+  { label: 'new collection', path: '/category/new-collection' },
   { label: 'mens', path: '/category/mens' },
   { label: 'womens', path: '/category/womens' },
   { label: 'kids', path: '/category/kids' },
@@ -20,6 +20,7 @@ const Header = () => {
   const [loginOpen, setLoginOpen] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkSection, setIsDarkSection] = useState(false);
 
   const { totalItems, setIsOpen } = useCart();
   const { user, isAdmin, logout } = useAuth();
@@ -40,6 +41,13 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Listen for dark section visibility (Quienes Somos)
+  useEffect(() => {
+    const handler = (e) => setIsDarkSection(e.detail.visible);
+    window.addEventListener('quienes-somos-visibility', handler);
+    return () => window.removeEventListener('quienes-somos-visibility', handler);
+  }, []);
+
   const handleUserClick = () => {
     if (user) {
       setProfileDropdown((prev) => !prev);
@@ -56,14 +64,16 @@ const Header = () => {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 w-full px-6 py-4 flex items-center justify-between transition-colors duration-500 ${
-          isScrolled 
-            ? 'bg-white border-b border-gray-100 shadow-sm text-gray-900' 
-            : 'bg-white/30 backdrop-blur-xl border-b border-white/10 text-gray-900'
+        className={`fixed top-0 left-0 right-0 z-50 w-full px-6 py-4 flex items-center justify-between transition-all duration-500 ${
+          isDarkSection
+            ? 'bg-[#0a0a0a] border-b border-white/10 text-white'
+            : isScrolled 
+              ? 'bg-white border-b border-gray-100 shadow-sm text-gray-900' 
+              : 'bg-white/30 backdrop-blur-xl border-b border-white/10 text-gray-900'
         }`}
       >
         {/* Logo */}
-        <a href="/" className="text-2xl font-black tracking-tighter" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+        <a href="/" className={`text-2xl font-black tracking-tighter transition-colors duration-500 ${isDarkSection ? 'text-white' : ''}`} onClick={(e) => { e.preventDefault(); navigate('/'); }}>
           Hoodie.
         </a>
 
@@ -77,8 +87,8 @@ const Header = () => {
                 to={item.path}
                 className={`transition-all pb-1 ${
                   isActive
-                    ? 'text-gray-900 border-b-2 border-red-500'
-                    : 'text-gray-500 hover:text-gray-900'
+                    ? `${isDarkSection ? 'text-white' : 'text-gray-900'} border-b-2 border-red-500`
+                    : `${isDarkSection ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`
                 }`}
               >
                 {item.label}
@@ -91,17 +101,17 @@ const Header = () => {
         <div className="flex items-center space-x-6">
           <button
             onClick={() => setSearchOpen(true)}
-            className="text-gray-900 hover:text-gray-600 transition-colors"
+            className={`transition-colors ${isDarkSection ? 'text-white hover:text-gray-300' : 'text-gray-900 hover:text-gray-600'}`}
           >
             <Search size={20} strokeWidth={1} />
           </button>
           <button
             onClick={() => setIsOpen(true)}
-            className="text-gray-900 hover:text-gray-600 transition-colors relative"
+            className={`transition-colors relative ${isDarkSection ? 'text-white hover:text-gray-300' : 'text-gray-900 hover:text-gray-600'}`}
           >
             <ShoppingBag size={20} strokeWidth={1} />
             {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+              <span className={`absolute -top-1.5 -right-1.5 text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold ${isDarkSection ? 'bg-white text-black' : 'bg-black text-white'}`}>
                 {totalItems}
               </span>
             )}
@@ -111,7 +121,7 @@ const Header = () => {
           <div className="relative flex items-center h-full">
             <button
               onClick={handleUserClick}
-              className={`transition-colors flex items-center justify-center ${user ? 'text-black' : 'text-gray-900 hover:text-gray-600'}`}
+              className={`transition-colors flex items-center justify-center ${isDarkSection ? 'text-white hover:text-gray-300' : user ? 'text-black' : 'text-gray-900 hover:text-gray-600'}`}
             >
               <User size={20} strokeWidth={1} />
               {user && (

@@ -110,7 +110,7 @@ const AdminPage = () => {
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
+    <div className="max-w-6xl mx-auto px-6 pt-24 pb-12">
       {/* Header */}
       <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-4">

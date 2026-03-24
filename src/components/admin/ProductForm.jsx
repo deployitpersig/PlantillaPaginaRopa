@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Loader2, Upload, Package, DollarSign, Tag, Layers, ImageIcon } from 'lucide-react';
+import { X, Loader2, Upload, Package, DollarSign, Tag, Layers, ImageIcon, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 const SUBCATEGORIES = {
@@ -26,6 +26,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
     image: product?.image || '',
     tag: product?.tag || '',
     stock: product?.stock ?? 0,
+    new_collection: product?.new_collection ?? false,
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(product?.image || '');
@@ -117,6 +118,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
         discount: form.discount || null,
         image: imageUrl,
         tag: form.tag || null,
+        new_collection: !!form.new_collection,
       };
 
       const stockValue = parseInt(form.stock, 10);
@@ -175,7 +177,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-7 space-y-5 max-h-[65vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-7 space-y-5 max-h-[65vh] overflow-y-auto text-center">
           {error && (
             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-medium border border-red-100">
               {error}
@@ -272,6 +274,25 @@ const ProductForm = ({ product, onClose, onSave }) => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* New Collection Toggle */}
+          <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer">
+              <Sparkles size={14} className="text-amber-500" />
+              New Collection
+            </label>
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev, new_collection: !prev.new_collection }))}
+              className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${
+                form.new_collection ? 'bg-black' : 'bg-gray-300'
+              }`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                form.new_collection ? 'translate-x-5' : 'translate-x-0'
+              }`} />
+            </button>
           </div>
 
           {/* Price Row */}
