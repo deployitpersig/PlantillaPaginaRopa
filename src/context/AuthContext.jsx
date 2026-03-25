@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // safeQuery ONLY for .from() database calls — NOT for auth SDK calls
   const fetchProfile = async (userId, userEmail) => {
     try {
       const { data, error } = await safeQuery(() => supabase
@@ -29,7 +30,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (!data) {
-        // Perfil no existe, crearlo
         const { data: newProfile, error: insertError } = await safeQuery(() => supabase
           .from('profiles')
           .insert({ id: userId, email: userEmail, role: 'customer' })
@@ -51,13 +51,11 @@ export const AuthProvider = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
-        const res = await safeQuery(() => supabase.auth.getUser());
-        const user = res.data?.user;
-        const error = res.error;
+        // NO safeQuery here — auth SDK manages its own token refresh internally
+        const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error) {
-          console.warn("Auth session error (posible token de BD antigua):", error.message);
-          // Auto-clear corrupted/old local storage keys to prevent app bricking
+          console.warn("Auth session error:", error.message);
           if (typeof localStorage !== 'undefined') {
             Object.keys(localStorage).forEach(key => {
               if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
@@ -88,14 +86,12 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!mounted) return;
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         if (currentUser) {
-          // If we already have a profile for this user, don't fetch again needlessly
           await fetchProfile(currentUser.id, currentUser.email);
         } else {
           setProfile(null);
@@ -109,27 +105,27 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  // NO safeQuery on auth SDK calls — they handle retries/refresh internally
   const login = async (email, password) => {
-    const res = await safeQuery(() => supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    }));
-    if (res.error) throw res.error;
-    return res.data;
+    });
+    if (error) throw error;
+    return data;
   };
 
   const register = async (email, password) => {
-    const res = await safeQuery(() => supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
       }
-    }));
-    if (res.error) throw res.error;
-    const data = res.data;
+    });
+    if (error) throw error;
 
-    // Create profile
+    // Create profile (this IS a db call, so safeQuery is fine)
     if (data?.user) {
       await safeQuery(() => supabase.from('profiles').upsert({
         id: data.user.id,
