@@ -20,7 +20,7 @@ const MidBanner = () => {
       {/* Dark Overlay for better contrast on text */}
       <div className="absolute inset-0 bg-black/70"></div>
 
-      <div className="relative z-10 text-center text-white px-6 flex flex-col items-center">
+      <div className="relative z-10 text-center text-white px-6 py-28 md:py-0 flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] font-medium text-gray-300 mb-6">
           Collection 2025
         </p>
