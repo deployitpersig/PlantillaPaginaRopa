@@ -45,15 +45,6 @@ const AdminDashboard = ({ products, orders = [] }) => {
   }, [orders]);
 
   const salesData = useMemo(() => {
-    if (orders.length === 0) {
-      // Mock data if absolute 0 sales to make panel look nice until 1st sale
-      return [
-        { name: 'Oct', total: 45000 }, { name: 'Nov', total: 55000 },
-        { name: 'Dic', total: 85000 }, { name: 'Ene', total: 60000 },
-        { name: 'Feb', total: 65000 }, { name: 'Mar', total: 125430 }
-      ];
-    }
-
     const months = {};
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
@@ -75,8 +66,6 @@ const AdminDashboard = ({ products, orders = [] }) => {
   }, [orders]);
 
   const categoryData = useMemo(() => {
-    // Try to aggregate actual DB data if products have sold_count
-    // otherwise fallback to a realistic distribution based on existing categories.
     let hasRealSales = false;
     const stats = products.reduce((acc, p) => {
       const cat = p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : 'Otros';
@@ -88,20 +77,15 @@ const AdminDashboard = ({ products, orders = [] }) => {
     }, {});
 
     if (hasRealSales) {
-      return Object.entries(stats).map(([name, value]) => ({ name, value }));
+      return Object.entries(stats).map(([name, value]) => ({ name, value })).filter(c => c.value > 0);
     }
 
-    // Fallback Mock Category Distribution 
-    return [
-      { name: 'Hombres', value: 45 },
-      { name: 'Mujeres', value: 35 },
-      { name: 'Niños', value: 20 },
-    ];
+    return [];
   }, [products]);
 
   const topProductsList = useMemo(() => {
     const sorted = [...products].sort((a, b) => (b.sold_count || 0) - (a.sold_count || 0));
-    return sorted.slice(0, 5).map(p => ({
+    return sorted.filter(p => (p.sold_count || 0) > 0).slice(0, 5).map(p => ({
       ...p,
       sold_count: p.sold_count || 0, 
       revenue: (p.price * (p.sold_count || 0))
