@@ -5,7 +5,7 @@ const MidBanner = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full relative h-[100dvh] flex items-center justify-center overflow-hidden section-snap">
+    <section className="w-full relative h-[60vw] md:h-[100dvh] flex items-center justify-center overflow-hidden section-snap">
       {/* Background Video */}
       <video
         autoPlay

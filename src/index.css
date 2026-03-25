@@ -25,3 +25,11 @@
 .animate-slideDown {
   animation: slideDown 0.25s ease-out;
 }
+
+@media (max-width: 1023px) {
+  .section-snap {
+    height: auto !important;
+    min-height: auto !important;
+    scroll-snap-align: none !important;
+  }
+}
