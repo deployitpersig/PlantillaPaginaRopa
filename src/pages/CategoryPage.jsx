@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Check, AlertTriangle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, safeQuery } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 
 const SUBCATEGORIES = {
@@ -96,7 +96,8 @@ const CategoryPage = ({ showAll = false }) => {
           query = query.order('created_at', { ascending: false });
         }
 
-        const { data } = await query;
+        const { data, error } = await safeQuery(() => query);
+        if (error) throw error;
         const fetched = data || [];
         setAllProducts(fetched);
         setProducts(fetched);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Package, Loader2, ArrowLeft, AlertTriangle, RefreshCw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, safeQuery } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import ProductForm from '../components/admin/ProductForm';
 import AdminDashboard from '../components/admin/dashboard/AdminDashboard';
@@ -30,8 +30,8 @@ const AdminPage = () => {
     setError(null);
     try {
       const [prodRes, ordRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('orders').select('*').order('created_at', { ascending: false })
+        safeQuery(() => supabase.from('products').select('*').order('created_at', { ascending: false })),
+        safeQuery(() => supabase.from('orders').select('*').order('created_at', { ascending: false }))
       ]);
       
       if (prodRes.error) throw prodRes.error;
@@ -60,7 +60,7 @@ const AdminPage = () => {
       if (productId) {
         // Optimistic update
         setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...payload } : p));
-        const { error: updateError } = await supabase.from('products').update(payload).eq('id', productId);
+        const { error: updateError } = await safeQuery(() => supabase.from('products').update(payload).eq('id', productId));
         if (updateError) {
           // Rollback on error
           await fetchProducts();
@@ -68,7 +68,7 @@ const AdminPage = () => {
         }
       } else {
         // Insert and add to list
-        const { data, error: insertError } = await supabase.from('products').insert(payload).select();
+        const { data, error: insertError } = await safeQuery(() => supabase.from('products').insert(payload).select());
         if (insertError) throw insertError;
         if (data) {
           setProducts(prev => [data[0], ...prev]);
@@ -90,7 +90,7 @@ const AdminPage = () => {
     setDeleteConfirm(null);
 
     try {
-      const { error: deleteError } = await supabase.from('products').delete().eq('id', id);
+      const { error: deleteError } = await safeQuery(() => supabase.from('products').delete().eq('id', id));
       if (deleteError) {
         // Rollback on error
         setProducts(backup);

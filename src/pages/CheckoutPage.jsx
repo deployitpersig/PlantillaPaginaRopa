@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ArrowLeft, ArrowRight, Check, CreditCard, Building2, Smartphone, Loader2, ShoppingBag, Package, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { supabase, safeQuery } from '../lib/supabase';
 
 const STEPS = ['Datos', 'Resumen', 'Pago'];
 
@@ -77,10 +77,10 @@ const CheckoutPage = () => {
       }));
 
       // Secure order placement via Database Function (Atomic Stock Decrement)
-      const { error: rpcError } = await supabase.rpc('place_order', {
+      const { error: rpcError } = await safeQuery(() => supabase.rpc('place_order', {
         p_order_data: orderData,
         p_items: orderItems
-      });
+      }));
 
       if (rpcError) {
         throw new Error(rpcError.message || 'Error al procesar el pedido. Esto puede suceder si algún producto se quedó sin stock.');

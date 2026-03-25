@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, safeQuery } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -16,19 +16,19 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async (userId, userEmail) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await safeQuery(() => supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .single());
 
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist — create it
-        const { data: newProfile, error: insertError } = await supabase
+        const { data: newProfile, error: insertError } = await safeQuery(() => supabase
           .from('profiles')
           .insert({ id: userId, email: userEmail, role: 'customer' })
           .select()
-          .single();
+          .single());
         if (insertError) console.error('Error creating new profile:', insertError);
         setProfile(newProfile || null);
       } else if (error) {
@@ -50,7 +50,9 @@ export const AuthProvider = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const res = await safeQuery(() => supabase.auth.getUser());
+        const user = res.data?.user;
+        const error = res.error;
         
         if (error) {
           console.warn("Auth session error (posible token de BD antigua):", error.message);
@@ -107,31 +109,32 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const res = await safeQuery(() => supabase.auth.signInWithPassword({
       email,
       password,
-    });
-    if (error) throw error;
-    return data;
+    }));
+    if (res.error) throw res.error;
+    return res.data;
   };
 
   const register = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
+    const res = await safeQuery(() => supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
       }
-    });
-    if (error) throw error;
+    }));
+    if (res.error) throw res.error;
+    const data = res.data;
 
     // Create profile
-    if (data.user) {
-      await supabase.from('profiles').upsert({
+    if (data?.user) {
+      await safeQuery(() => supabase.from('profiles').upsert({
         id: data.user.id,
         email: data.user.email,
         role: 'customer',
-      });
+      }));
     }
     return data;
   };
