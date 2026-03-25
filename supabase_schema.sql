@@ -93,12 +93,10 @@ BEGIN
   VALUES (
     NEW.id, 
     NEW.email, 
-    -- Make the very first user ever an Admin, everyone else is a customer
-    CASE 
-      WHEN NOT EXISTS (SELECT 1 FROM public.profiles) THEN 'admin'
-      ELSE 'customer' 
-    END
-  );
+    'customer' -- Todos inician como clientes. El admin se cambia a mano desde Supabase.
+  )
+  ON CONFLICT (id) DO NOTHING; -- Fundamental para evitar crashes si Auth o React re-intentan
+  
   RETURN NEW;
 END;
 $$ language 'plpgsql' security definer;
