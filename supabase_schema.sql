@@ -153,11 +153,13 @@ VALUES ('e-commerce-images', 'e-commerce-images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Dar permiso público de LECTURA para que se vean las imágenes en la web
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 CREATE POLICY "Public Access" 
 ON storage.objects FOR SELECT 
 USING ( bucket_id = 'e-commerce-images' );
 
 -- Dar permiso a ADMINS para SUBIR, EDITAR y BORRAR imágenes
+DROP POLICY IF EXISTS "Admins can upload images" ON storage.objects;
 CREATE POLICY "Admins can upload images" 
 ON storage.objects FOR INSERT 
 WITH CHECK (
@@ -165,6 +167,7 @@ WITH CHECK (
   AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
+DROP POLICY IF EXISTS "Admins can update images" ON storage.objects;
 CREATE POLICY "Admins can update images" 
 ON storage.objects FOR UPDATE 
 USING (
@@ -172,6 +175,7 @@ USING (
   AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
+DROP POLICY IF EXISTS "Admins can delete images" ON storage.objects;
 CREATE POLICY "Admins can delete images" 
 ON storage.objects FOR DELETE 
 USING (
