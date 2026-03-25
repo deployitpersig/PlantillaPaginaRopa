@@ -28,8 +28,8 @@
 
 @media (max-width: 1023px) {
   .section-snap {
-    height: auto !important;
-    min-height: auto !important;
+    min-height: 100dvh;
+    height: auto;
     scroll-snap-align: none !important;
   }
 }
