@@ -51,7 +51,22 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
+        
+        if (error) {
+          console.warn("Auth session error (posible token de BD antigua):", error.message);
+          // Auto-clear corrupted/old local storage keys to prevent app bricking
+          if (typeof localStorage !== 'undefined') {
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                localStorage.removeItem(key);
+              }
+            });
+          }
+          await supabase.auth.signOut().catch(() => {});
+          setUser(null);
+          setProfile(null);
+          return;
+        }
         
         if (!mounted) return;
 
@@ -62,7 +77,7 @@ export const AuthProvider = ({ children }) => {
           await fetchProfile(currentUser.id, currentUser.email);
         }
       } catch (err) {
-        console.error("Auth session error:", err);
+        console.error("Auth session exception:", err);
       } finally {
         if (mounted) setLoading(false);
       }
