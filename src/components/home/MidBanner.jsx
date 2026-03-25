@@ -14,7 +14,8 @@ const MidBanner = () => {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src={import.meta.env.BASE_URL + "videopagina.mp4"} type="video/mp4" />
+        <source src={import.meta.env.BASE_URL + 'videopagina.webm'} type="video/webm" />
+        <source src={import.meta.env.BASE_URL + 'videopagina-compressed.mp4'} type="video/mp4" />
       </video>
       
       {/* Dark Overlay for better contrast on text */}
