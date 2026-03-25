@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -30,9 +30,33 @@ function HomePage() {
 }
 
 function App() {
+  const [hashError, setHashError] = useState(null);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('error=')) {
+      const params = new URLSearchParams(hash.replace('#', '?'));
+      const errDesc = params.get('error_description');
+      if (errDesc) {
+        setHashError(errDesc.replace(/\+/g, ' '));
+      }
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
+        {hashError && (
+          <div className="bg-red-600 text-white text-center py-3 px-6 fixed top-0 w-full z-[9999] shadow-lg flex items-center justify-between">
+            <span className="font-semibold text-sm max-w-4xl mx-auto flex-1 text-center">
+              Aviso: {hashError === 'Email link is invalid or has expired' 
+                ? 'El enlace de seguridad es inválido o ya ha expirado (usualmente porque ya lo clickeaste antes). Por favor, intenta de nuevo.' 
+                : hashError}
+            </span>
+            <button onClick={() => setHashError(null)} className="font-bold text-white hover:text-red-200">✕</button>
+          </div>
+        )}
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
