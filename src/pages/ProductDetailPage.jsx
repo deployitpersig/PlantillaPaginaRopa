@@ -27,8 +27,13 @@ const ProductDetailPage = () => {
           .from('products')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
         if (error) throw error;
+        if (!data) {
+          console.warn('Product not found:', id);
+          setLoading(false);
+          return;
+        }
         setProduct(data);
         // Pre-select first color and size if available
         const colors = data.colors || [];
