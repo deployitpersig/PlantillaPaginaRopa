@@ -89,10 +89,10 @@ const Styles = () => {
 
   const handleClick = (style) => {
     const cat = (style.category || '').toLowerCase();
-    let slug = 'mens';
-    if (cat.includes('women')) slug = 'womens';
-    else if (cat.includes('kid')) slug = 'kids';
-    else if (cat.includes('men')) slug = 'mens';
+    let slug = 'hombres';
+    if (cat.includes('mujer') || cat.includes('women')) slug = 'mujeres';
+    else if (cat.includes('nino') || cat.includes('niño') || cat.includes('kid')) slug = 'ninos';
+    else if (cat.includes('hombre') || cat.includes('men')) slug = 'hombres';
 
     navigate(`/category/${slug}`, { state: { subcategory: style.title } });
   };
@@ -101,7 +101,7 @@ const Styles = () => {
     return (
       <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
         <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Navegá por Estilo</h2>
           <div className="grid grid-cols-2 md:grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-4 md:p-6 rounded-3xl w-full">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className={`bg-gray-200 rounded-2xl animate-pulse ${MOBILE_LAYOUT[i - 1]} ${DESKTOP_LAYOUT[i - 1]}`} />
@@ -117,7 +117,7 @@ const Styles = () => {
   return (
     <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative">
       <div className="w-full px-4 md:px-12 max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Browse by Dress Style</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Navegá por Estilo</h2>
         
         <div className="grid grid-cols-2 md:grid-cols-12 gap-4 auto-rows-[140px] md:auto-rows-[180px] bg-gray-100 p-4 md:p-6 rounded-3xl w-full">
           {styles.map((style) => (
@@ -129,7 +129,7 @@ const Styles = () => {
               <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
                 <h3 className="text-lg md:text-2xl font-bold">{style.title}</h3>
                 <p className="text-gray-500 text-xs md:text-sm flex items-center gap-1 mt-1 group-hover:text-black transition-colors">
-                  Explore <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                  Explorar <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                 </p>
               </div>
               

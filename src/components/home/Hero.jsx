@@ -4,35 +4,35 @@ import { useNavigate } from 'react-router-dom';
 const slides = [
   {
     id: 1,
-    subtitle: "A true classic, redefining street style",
+    subtitle: "Un verdadero clásico, redefiniendo el estilo urbano",
     title: "Hoodie",
-    description: "Our premium heavy-weight fleece hoodie is designed for the modern street aesthetic. Built with uncompromised craftsmanship for every day comfort.",
+    description: "Nuestra sudadera premium está diseñada para la estética urbana moderna. Construida con calidad sin concesiones para el confort diario.",
     image: import.meta.env.BASE_URL + "hero-slide-1-new.png",
-    link: "/category/mens"
+    link: "/category/hombres"
   },
   {
     id: 2,
-    subtitle: "Minimalist approach",
+    subtitle: "Enfoque minimalista",
     title: "Essentials",
-    description: "Stripped down to the absolute necessities without compromising on quality or style. The foundation of any modern wardrobe.",
+    description: "Reducido a lo absolutamente necesario sin comprometer calidad o estilo. La base de cualquier guardarropa moderno.",
     image: import.meta.env.BASE_URL + "hero-slide-2-new.png",
     link: "/products"
   },
   {
     id: 3,
-    subtitle: "Urban exploration gear",
+    subtitle: "Equipamiento de exploración urbana",
     title: "Techwear",
-    description: "Functional apparel built for the concrete jungle. Weather-resistant materials meet cutting-edge design for ultimate mobility.",
+    description: "Ropa funcional para la jungla de asfalto. Materiales resistentes al clima y diseño de vanguardia para máxima movilidad.",
     image: import.meta.env.BASE_URL + "hero-slide-3-new.png",
-    link: "/category/mens"
+    link: "/category/hombres"
   },
   {
     id: 4,
-    subtitle: "Elevate your everyday look",
+    subtitle: "Eleva tu look diario",
     title: "Multiply",
-    description: "Experience the next level of comfort with our signature double-layered design. Perfect for any season and every occasion.",
+    description: "Experimenta el siguiente nivel de confort con nuestro diseño de doble capa. Perfecto para cualquier temporada y ocasión.",
     image: import.meta.env.BASE_URL + "hero-slide-4.png",
-    link: "/category/womens"
+    link: "/category/mujeres"
   }
 ];
 
@@ -93,7 +93,7 @@ const Hero = () => {
                 className="bg-black text-white px-7 py-3 rounded-full font-medium
                            hover:bg-gray-800 transition-colors flex items-center gap-2 w-fit"
               >
-                <ShoppingBagIcon className="w-4 h-4" /> Shop now
+                <ShoppingBagIcon className="w-4 h-4" /> Comprar ahora
               </button>
             </div>
           ))}
@@ -146,7 +146,7 @@ const Hero = () => {
             className="bg-black text-white px-8 py-4 rounded-full font-medium
                        hover:bg-gray-800 transition-colors flex items-center gap-2 w-fit mt-2"
           >
-            <ShoppingBagIcon className="w-4 h-4" /> Shop now
+            <ShoppingBagIcon className="w-4 h-4" /> Comprar ahora
           </button>
         </div>
 

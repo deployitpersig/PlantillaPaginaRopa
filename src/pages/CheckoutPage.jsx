@@ -55,6 +55,7 @@ const CheckoutPage = () => {
         throw new Error(validation.error.issues[0].message);
       }
       const orderData = {
+        id: crypto.randomUUID(),
         user_id: user?.id || null,
         customer_name: customer.name,
         customer_email: customer.email,

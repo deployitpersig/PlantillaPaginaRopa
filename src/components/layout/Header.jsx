@@ -8,11 +8,11 @@ import CartDrawer from '../cart/CartDrawer';
 import LoginModal from '../auth/LoginModal';
 
 const NAV_ITEMS = [
-  { label: 'new collection', path: '/category/new-collection' },
-  { label: 'mens', path: '/category/mens' },
-  { label: 'womens', path: '/category/womens' },
-  { label: 'kids', path: '/category/kids' },
-  { label: 'sale', path: '/category/sale' },
+  { label: 'nueva colección', path: '/category/nueva-coleccion' },
+  { label: 'hombres', path: '/category/hombres' },
+  { label: 'mujeres', path: '/category/mujeres' },
+  { label: 'niños', path: '/category/ninos' },
+  { label: 'ofertas', path: '/category/ofertas' },
 ];
 
 const Header = () => {
@@ -208,7 +208,7 @@ const Header = () => {
             
             <div className="mt-auto mb-10 border-t border-gray-100 pt-6">
               <a href="/" className="text-3xl font-black tracking-tighter">Hoodie.</a>
-              <p className="text-sm text-gray-500 mt-2">Urban vibes, timeless style.</p>
+              <p className="text-sm text-gray-500 mt-2">Vibras urbanas, estilo atemporal.</p>
             </div>
           </div>
         </div>

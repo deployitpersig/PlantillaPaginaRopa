@@ -22,19 +22,19 @@ const MidBanner = () => {
 
       <div className="relative z-10 text-center text-white px-6 py-28 md:py-0 flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] font-medium text-gray-300 mb-6">
-          Collection 2025
+          Colección 2025
         </p>
         <h2 className="text-4xl md:text-6xl font-bold mb-6 max-w-3xl leading-tight tracking-tight">
-          Effortless Style,<br />Every Step of the Way
+          Estilo Sin Esfuerzo,<br />En Cada Paso
         </h2>
         <p className="text-gray-300 text-sm md:text-base max-w-lg mb-10 leading-relaxed">
-          Discover pieces that define who you are. Crafted with precision, designed for the bold.
+          Descubre prendas que definen quién eres. Creadas con precisión, diseñadas para los audaces.
         </p>
         <button
-          onClick={() => navigate('/category/new-collection')}
+          onClick={() => navigate('/category/nueva-coleccion')}
           className="bg-white text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95"
         >
-          View Collection
+          Ver Colección
         </button>
       </div>
     </section>

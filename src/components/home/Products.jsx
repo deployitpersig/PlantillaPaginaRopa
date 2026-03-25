@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, ShoppingCart, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
@@ -62,10 +62,10 @@ const Products = () => {
         EST 2015
       </div>
 
-      <h2 className="text-4xl md:text-5xl font-bold mb-4">Our Products</h2>
+      <h2 className="text-4xl md:text-5xl font-bold mb-4">Nuestros Productos</h2>
       <p className="text-gray-500 max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
-        Our focus is on producing high-quality, hard-wearing comfort and urban wear items for everyday life.
-        Our products are the styles people need to live and thrive. Founded in 2015.
+        Nuestro enfoque es producir prendas urbanas cómodas, duraderas y de alta calidad para la vida diaria.
+        Nuestros productos son los estilos que las personas necesitan para vivir al máximo. Fundada en 2015.
       </p>
 
       {/* Product Grid */}
@@ -147,7 +147,7 @@ const Products = () => {
         onClick={() => navigate('/products')}
         className="inline-flex items-center gap-2 border border-gray-900 text-gray-900 px-8 py-3 rounded-full font-semibold text-sm hover:bg-black hover:text-white transition-colors"
       >
-        View more <ArrowRight size={16} strokeWidth={1.5} />
+        Ver más <ArrowRight size={16} strokeWidth={1.5} />
       </button>
     </section>
   );

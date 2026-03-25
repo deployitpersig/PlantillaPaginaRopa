@@ -86,7 +86,7 @@ const Testimonials = () => {
     <section className="w-full min-h-[100dvh] flex flex-col justify-center py-16 md:py-24 section-snap relative overflow-hidden">
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold">Our Happy Customers</h2>
+          <h2 className="text-3xl md:text-4xl font-bold">Nuestros Clientes Felices</h2>
           <div className="flex gap-2">
             <button 
               onClick={prev}

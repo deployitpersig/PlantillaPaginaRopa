@@ -4,12 +4,15 @@ import { Plus, Pencil, Trash2, Package, Loader2, ArrowLeft, AlertTriangle, Refre
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import ProductForm from '../components/admin/ProductForm';
+import AdminDashboard from '../components/admin/dashboard/AdminDashboard';
 
 const AdminPage = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -22,22 +25,32 @@ const AdminPage = () => {
     }
   }, [user, isAdmin, authLoading, navigate]);
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-      if (fetchError) throw fetchError;
-      setProducts(data || []);
+      const [prodRes, ordRes] = await Promise.all([
+        supabase.from('products').select('*').order('created_at', { ascending: false }),
+        supabase.from('orders').select('*').order('created_at', { ascending: false })
+      ]);
+      
+      if (prodRes.error) throw prodRes.error;
+      if (ordRes.error && ordRes.error.code !== '42P01') { 
+        // 42P01 is undefined table, just in case orders table doesn't exist
+        console.warn('Error fetching orders:', ordRes.error);
+      }
+      
+      setProducts(prodRes.data || []);
+      setOrders(ordRes.data || []);
     } catch (err) {
-      setError('Error al cargar productos. Intentá de nuevo.');
+      setError('Error al cargar datos. Intentá de nuevo.');
       console.error('Fetch error:', err);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    if (user && isAdmin) fetchProducts();
+    if (user && isAdmin) fetchData();
   }, [user, isAdmin]);
 
   const handleSave = async (payload, productId) => {
@@ -134,6 +147,26 @@ const AdminPage = () => {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="flex border-b border-gray-100 mb-8 overflow-x-auto hide-scrollbar">
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className={`whitespace-nowrap px-6 py-4 font-bold text-sm transition-colors border-b-2 ${
+            activeTab === 'dashboard' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-900 hover:border-gray-200'
+          }`}
+        >
+          Dashboard General
+        </button>
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`whitespace-nowrap px-6 py-4 font-bold text-sm transition-colors border-b-2 ${
+            activeTab === 'products' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-900 hover:border-gray-200'
+          }`}
+        >
+          Gestión de Productos
+        </button>
+      </div>
+
       {/* Error Banner */}
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
@@ -142,7 +175,7 @@ const AdminPage = () => {
             <span className="text-sm text-red-700 font-medium">{error}</span>
           </div>
           <button
-            onClick={fetchProducts}
+            onClick={fetchData}
             className="flex items-center gap-1 text-sm text-red-600 font-semibold hover:text-red-800 transition-colors"
           >
             <RefreshCw size={14} /> Reintentar
@@ -150,7 +183,11 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* Stats */}
+      {activeTab === 'dashboard' ? (
+        <AdminDashboard products={products} orders={orders} />
+      ) : (
+        <div className="animate-in fade-in duration-300">
+          {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
         <div className="bg-gray-50 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-2">
@@ -302,6 +339,8 @@ const AdminPage = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
         </div>
       )}
 

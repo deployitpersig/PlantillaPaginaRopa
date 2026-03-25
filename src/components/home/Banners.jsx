@@ -14,15 +14,15 @@ const Banners = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" 
         />
         <div className="relative z-10 flex flex-col items-center justify-center text-white text-center p-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">New Arrivals</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Nuevos Ingresos</h2>
           <p className="max-w-md text-gray-200 text-sm mb-8">
-            Urban vibes, timeless style. Uncompromised craftsmanship for the modern aesthetic.
+            Vibras urbanas, estilo atemporal. Calidad sin concesiones para la estética moderna.
           </p>
           <button 
-            onClick={() => navigate('/category/new-arrivals')}
+            onClick={() => navigate('/category/nuevos-ingresos')}
             className="bg-white text-black px-8 py-3 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors"
           >
-            Shop Now
+            Comprar Ahora
           </button>
         </div>
       </div>
@@ -35,15 +35,15 @@ const Banners = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
         />
         <div className="relative z-10 flex flex-col items-center justify-center text-white text-center p-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Sale</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Ofertas</h2>
           <p className="max-w-md text-gray-200 text-sm mb-8">
-            Incredible deals on your favourite pieces. Up to 50% off â€” limited time only, don't miss out.
+            Ofertas increíbles en tus prendas favoritas. Hasta 50% de descuento — por tiempo limitado, no te lo pierdas.
           </p>
           <button 
-            onClick={() => navigate('/category/sale')}
+            onClick={() => navigate('/category/ofertas')}
             className="bg-white text-black px-8 py-3 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors"
           >
-            Shop Now
+            Comprar Ahora
           </button>
         </div>
       </div>

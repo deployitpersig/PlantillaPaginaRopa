@@ -5,40 +5,40 @@ import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 
 const SUBCATEGORIES = {
-  mens: ['T-Shirts', 'Polo Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants', 'Shorts', 'Suits', 'Swimwear', 'Socks', 'Accessories'],
-  womens: ['T-Shirts', 'Tops', 'Blouses', 'Hoodies', 'Jackets', 'Dresses', 'Skirts', 'Jeans', 'Pants', 'Shorts', 'Underwear', 'Swimwear', 'Jumpsuits', 'Socks & Tights', 'Accessories'],
-  kids: ['T-Shirts', 'Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants & Leggings', 'Shorts', 'Dresses', 'Skirts', 'Underwear', 'Swimwear', 'Socks', 'Accessories'],
+  hombres: ['Remeras', 'Chombas', 'Buzos', 'Camperas', 'Jeans', 'Pantalones', 'Shorts', 'Trajes', 'Trajes de Baño', 'Medias', 'Accesorios'],
+  mujeres: ['Remeras', 'Tops', 'Blusas', 'Buzos', 'Camperas', 'Vestidos', 'Faldas', 'Jeans', 'Pantalones', 'Shorts', 'Ropa Interior', 'Trajes de Baño', 'Monos', 'Medias y Pantimedias', 'Accesorios'],
+  ninos: ['Remeras', 'Camisas', 'Buzos', 'Camperas', 'Jeans', 'Pantalones y Leggings', 'Shorts', 'Vestidos', 'Faldas', 'Ropa Interior', 'Trajes de Baño', 'Medias', 'Accesorios'],
 };
 
 const CATEGORY_CONFIG = {
-  'new-arrivals': {
-    title: 'New Arrivals',
-    description: 'Discover our latest drops and newest additions to the collection.',
+  'nuevos-ingresos': {
+    title: 'Nuevos Ingresos',
+    description: 'Descubrí nuestros últimos lanzamientos y nuevas incorporaciones a la colección.',
     filter: (query) => query.order('created_at', { ascending: false }),
   },
-  'new-collection': {
-    title: 'New Collection',
-    description: 'Discover our latest drops and newest additions to the collection.',
+  'nueva-coleccion': {
+    title: 'Nueva Colección',
+    description: 'Descubrí nuestros últimos lanzamientos y nuevas incorporaciones a la colección.',
     filter: (query) => query.eq('new_collection', true).order('created_at', { ascending: false }),
   },
-  mens: {
-    title: 'Mens',
-    description: 'Explore our complete mens collection — from streetwear to essentials.',
-    filter: (query) => query.eq('category', 'mens'),
+  hombres: {
+    title: 'Hombres',
+    description: 'Explorá nuestra colección completa para hombres — desde básicos hasta streetwear.',
+    filter: (query) => query.eq('category', 'hombres'),
   },
-  womens: {
-    title: 'Womens',
-    description: 'Shop the latest womens styles — curated for comfort and confidence.',
-    filter: (query) => query.eq('category', 'womens'),
+  mujeres: {
+    title: 'Mujeres',
+    description: 'Comprá los últimos estilos para mujeres — pensados para brindar confort y confianza.',
+    filter: (query) => query.eq('category', 'mujeres'),
   },
-  kids: {
-    title: 'Kids',
-    description: 'Fun, durable and stylish pieces for the little ones.',
-    filter: (query) => query.eq('category', 'kids'),
+  ninos: {
+    title: 'Niños',
+    description: 'Prendas divertidas, duraderas y con estilo para los más chicos.',
+    filter: (query) => query.eq('category', 'ninos'),
   },
-  sale: {
-    title: 'Sale',
-    description: 'Limited time offers — grab your favourites before they\'re gone.',
+  ofertas: {
+    title: 'Ofertas',
+    description: 'Ofertas por tiempo limitado — llevate tus favoritos antes de que se agoten.',
     filter: (query) => query.not('discount', 'is', null),
   },
 };
@@ -69,7 +69,7 @@ const CategoryPage = ({ showAll = false }) => {
   const { addToCart } = useCart();
 
   const config = showAll
-    ? { title: 'All Products', description: 'Browse our complete catalog.' }
+    ? { title: 'Todos los Productos', description: 'Navegá por nuestro catálogo completo.' }
     : CATEGORY_CONFIG[slug];
 
   const subcategories = SUBCATEGORIES[slug] || [];
@@ -92,7 +92,7 @@ const CategoryPage = ({ showAll = false }) => {
           query = config.filter(query);
         }
 
-        if (!slug || slug !== 'new-arrivals') {
+        if (!slug || slug !== 'nuevos-ingresos') {
           query = query.order('created_at', { ascending: false });
         }
 
@@ -145,9 +145,9 @@ const CategoryPage = ({ showAll = false }) => {
     return (
       <div className="max-w-6xl mx-auto px-6 py-20 text-center">
         <AlertTriangle size={48} className="mx-auto mb-4 text-gray-300" strokeWidth={1} />
-        <h2 className="text-xl font-bold mb-2">Category not found</h2>
+        <h2 className="text-xl font-bold mb-2">Categoría no encontrada</h2>
         <button onClick={() => navigate('/')} className="mt-4 bg-black text-white px-8 py-3 rounded-full font-semibold text-sm hover:bg-gray-800 transition-colors">
-          Go Home
+          Ir al Inicio
         </button>
       </div>
     );
@@ -160,13 +160,13 @@ const CategoryPage = ({ showAll = false }) => {
         onClick={() => navigate('/')}
         className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-900 transition-colors mb-8"
       >
-        <ArrowLeft size={16} /> Back to Home
+        <ArrowLeft size={16} /> Volver al Inicio
       </button>
 
       {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-block border border-gray-900 rounded-full px-5 py-1.5 text-xs font-semibold tracking-wider mb-6">
-          {showAll ? 'CATALOG' : slug?.toUpperCase().replace('-', ' ')}
+          {showAll ? 'CATÁLOGO' : slug?.toUpperCase().replace('-', ' ')}
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4">{config.title}</h1>
         <p className="text-gray-500 max-w-2xl mx-auto text-sm leading-relaxed">
@@ -226,10 +226,10 @@ const CategoryPage = ({ showAll = false }) => {
         <div className="text-center py-20 text-gray-400">
           <ShoppingCart size={48} className="mx-auto mb-4" strokeWidth={1} />
           <p className="font-medium">
-            {activeFilters.length > 0 ? 'No hay productos con esos filtros' : 'No products found in this category'}
+            {activeFilters.length > 0 ? 'No hay productos con esos filtros' : 'No se encontraron productos en esta categoría'}
           </p>
           <p className="text-sm mt-1">
-            {activeFilters.length > 0 ? 'Probá quitando algunos filtros' : 'Check back later for new arrivals!'}
+            {activeFilters.length > 0 ? 'Probá quitando algunos filtros' : '¡Revisá más tarde para ver nuevos ingresos!'}
           </p>
         </div>
       ) : (

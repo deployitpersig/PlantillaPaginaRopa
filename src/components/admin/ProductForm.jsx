@@ -11,15 +11,15 @@ const productSchema = z.object({
 });
 
 const SUBCATEGORIES = {
-  mens: ['T-Shirts', 'Polo Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants', 'Shorts', 'Suits', 'Swimwear', 'Socks', 'Accessories'],
-  womens: ['T-Shirts', 'Tops', 'Blouses', 'Hoodies', 'Jackets', 'Dresses', 'Skirts', 'Jeans', 'Pants', 'Shorts', 'Underwear', 'Swimwear', 'Jumpsuits', 'Socks & Tights', 'Accessories'],
-  kids: ['T-Shirts', 'Shirts', 'Hoodies', 'Jackets', 'Jeans', 'Pants & Leggings', 'Shorts', 'Dresses', 'Skirts', 'Underwear', 'Swimwear', 'Socks', 'Accessories'],
+  hombres: ['Remeras', 'Chombas', 'Buzos', 'Camperas', 'Jeans', 'Pantalones', 'Shorts', 'Trajes', 'Trajes de Baño', 'Medias', 'Accesorios'],
+  mujeres: ['Remeras', 'Tops', 'Blusas', 'Buzos', 'Camperas', 'Vestidos', 'Faldas', 'Jeans', 'Pantalones', 'Shorts', 'Ropa Interior', 'Trajes de Baño', 'Monos', 'Medias y Pantimedias', 'Accesorios'],
+  ninos: ['Remeras', 'Camisas', 'Buzos', 'Camperas', 'Jeans', 'Pantalones y Leggings', 'Shorts', 'Vestidos', 'Faldas', 'Ropa Interior', 'Trajes de Baño', 'Medias', 'Accesorios'],
 };
 
 const CATEGORY_LABELS = {
-  mens: "Men's",
-  womens: "Women's",
-  kids: "Kids",
+  hombres: "Hombres",
+  mujeres: "Mujeres",
+  ninos: "Niños",
 };
 
 export const PREDEFINED_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Unico'];
@@ -417,7 +417,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
           <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer">
               <Sparkles size={14} className="text-amber-500" />
-              New Collection
+              Nueva Colección
             </label>
             <button
               type="button"

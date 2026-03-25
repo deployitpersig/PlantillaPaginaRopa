@@ -144,17 +144,17 @@ const ProductDetailPage = () => {
         {/* LEFT: Image Gallery */}
         <div className="w-full lg:w-[55%]">
           {images.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               {images.map((img, idx) => (
                 <div
                   key={idx}
                   onClick={() => openLightbox(idx)}
-                  className="aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden cursor-pointer group"
+                  className={`${images.length === 1 ? 'w-full max-w-lg' : 'w-[calc(50%-0.375rem)]'} aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden cursor-pointer group flex items-center justify-center`}
                 >
                   <img
                     src={img}
                     alt={`${product.name} - ${idx + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
               ))}
