@@ -15,6 +15,14 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   },
   global: {
     headers: { 'x-app-version': '1.0' },
+    fetch: (url, options = {}) => {
+      // Only add our own timeout if the SDK didn't provide a signal
+      if (options.signal) return fetch(url, options);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s hard limit
+      return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timeoutId));
+    },
   },
   db: {
     schema: 'public',
@@ -25,24 +33,15 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 export const safeQuery = async (queryFn) => {
-  const attempt = async (timeoutMs) => {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Query timeout')), timeoutMs)
-    );
-    const result = await Promise.race([queryFn(), timeoutPromise]);
-    if (result.error) throw result.error;
-    return { data: result.data, error: null };
-  };
-
   try {
-    return await attempt(20000); // 20s — covers Supabase free-tier cold starts
-  } catch (firstError) {
-    try {
-      console.warn('Supabase query retry after:', firstError.message);
-      return await attempt(25000); // retry once with 25s
-    } catch (retryError) {
-      console.error('Supabase query failed after retry:', retryError.message);
-      return { data: null, error: retryError };
+    const result = await queryFn();
+    if (result.error) {
+      console.error('Supabase query error:', result.error.message);
+      return { data: null, error: result.error };
     }
+    return { data: result.data, error: null };
+  } catch (error) {
+    console.error('Supabase query exception:', error.message);
+    return { data: null, error };
   }
 };
