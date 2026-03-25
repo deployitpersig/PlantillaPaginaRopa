@@ -14,14 +14,14 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // safeQuery ONLY for .from() database calls — NOT for auth SDK calls
+  // Direct supabase call — NO safeQuery for auth initialization
   const fetchProfile = async (userId, userEmail) => {
     try {
-      const { data, error } = await safeQuery(() => supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .maybeSingle());
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -30,11 +30,11 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (!data) {
-        const { data: newProfile, error: insertError } = await safeQuery(() => supabase
+        const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert({ id: userId, email: userEmail, role: 'customer' })
           .select()
-          .maybeSingle());
+          .maybeSingle();
         if (insertError) console.error('Error creating profile:', insertError);
         setProfile(newProfile || null);
       } else {
