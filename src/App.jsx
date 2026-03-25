@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
@@ -45,6 +46,7 @@ function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <CartProvider>
         {hashError && (
@@ -69,6 +71,7 @@ function App() {
         </Layout>
       </CartProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

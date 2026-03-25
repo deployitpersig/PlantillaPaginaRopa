@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Minus, Check, Loader2, Truck, RotateCcw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, safeQuery } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import ImageLightbox from '../components/product/ImageLightbox';
 
@@ -23,11 +23,11 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        const { data, error } = await safeQuery(() => supabase
           .from('products')
           .select('*')
           .eq('id', id)
-          .maybeSingle();
+          .maybeSingle());
         if (error) throw error;
         if (!data) {
           console.warn('Product not found:', id);

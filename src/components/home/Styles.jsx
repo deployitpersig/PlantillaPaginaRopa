@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, safeQuery } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
 // Grid layout patterns for 5 cards:
@@ -39,11 +39,11 @@ const Styles = () => {
   useEffect(() => {
     const fetchTopSubcategories = async () => {
       try {
-        const { data: products, error } = await supabase
+        const { data: products, error } = await safeQuery(() => supabase
           .from('products')
           .select('subcategory, category, image, sold_count')
           .not('subcategory', 'is', null)
-          .neq('subcategory', '');
+          .neq('subcategory', ''));
 
         if (error || !products) {
           setStyles([]);

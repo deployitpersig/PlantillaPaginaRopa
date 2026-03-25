@@ -52,7 +52,9 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       try {
         // NO safeQuery here — auth SDK manages its own token refresh internally
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const result = await supabase.auth.getUser();
+        const user = result?.data?.user ?? null;
+        const error = result?.error ?? null;
         
         if (error) {
           console.warn("Auth session error:", error.message);

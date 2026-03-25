@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, safeQuery } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
 
 const SearchModal = ({ isOpen, onClose }) => {
@@ -29,11 +29,11 @@ const SearchModal = ({ isOpen, onClose }) => {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const { data } = await supabase
+        const { data } = await safeQuery(() => supabase
           .from('products')
           .select('*')
           .ilike('name', `%${query}%`)
-          .limit(8);
+          .limit(8));
         setResults(data || []);
       } catch {
         setResults([]);
