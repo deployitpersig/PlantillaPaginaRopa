@@ -20,27 +20,28 @@ export const AuthProvider = ({ children }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single());
+        .maybeSingle());
 
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist — create it
+      if (error) {
+        console.error('Error fetching profile:', error);
+        setProfile(null);
+        return;
+      }
+
+      if (!data) {
+        // Perfil no existe, crearlo
         const { data: newProfile, error: insertError } = await safeQuery(() => supabase
           .from('profiles')
           .insert({ id: userId, email: userEmail, role: 'customer' })
           .select()
-          .single());
-        if (insertError) console.error('Error creating new profile:', insertError);
+          .maybeSingle());
+        if (insertError) console.error('Error creating profile:', insertError);
         setProfile(newProfile || null);
-      } else if (error) {
-        console.error('Error fetching profile:', error);
-        setProfile(null);
-      } else if (data) {
-        setProfile(data);
       } else {
-        setProfile(null);
+        setProfile(data);
       }
     } catch (err) {
-      console.error('Unexpected error fetching profile:', err);
+      console.error('Unexpected error:', err);
       setProfile(null);
     }
   };
