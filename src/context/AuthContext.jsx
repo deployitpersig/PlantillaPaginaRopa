@@ -29,17 +29,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      if (!data) {
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({ id: userId, email: userEmail, role: 'customer' })
-          .select()
-          .maybeSingle();
-        if (insertError) console.error('Error creating profile:', insertError);
-        setProfile(newProfile || null);
-      } else {
-        setProfile(data);
-      }
+      setProfile(data || null);
     } catch (err) {
       console.error('Unexpected error:', err);
       setProfile(null);
@@ -117,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const register = async (email, password) => {
+    const register = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -127,14 +117,9 @@ export const AuthProvider = ({ children }) => {
     });
     if (error) throw error;
 
-    // Create profile (this IS a db call, so safeQuery is fine)
-    if (data?.user) {
-      await safeQuery(() => supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: data.user.email,
-        role: 'customer',
-      }));
-    }
+    // Profile creation is now handled 100% automatically by the Supabase database trigger.
+    // We don't need to manually insert it here anymore, preventing role overwriting.
+
     return data;
   };
 
