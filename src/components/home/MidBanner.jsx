@@ -1,31 +1,14 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const MidBanner = () => {
   const navigate = useNavigate();
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && videoRef.current) {
-          videoRef.current.play().catch(() => {});
-        } else if (videoRef.current) {
-          videoRef.current.pause();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (videoRef.current) observer.observe(videoRef.current.parentElement);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section className="w-full relative h-[60vw] md:h-[100dvh] flex items-center justify-center overflow-hidden section-snap">
       {/* Background Video */}
       <video
-        ref={videoRef}
-        preload="none"
+        autoPlay
         loop
         muted
         playsInline
