@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
@@ -9,6 +10,7 @@ const SearchModal = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
@@ -42,8 +44,8 @@ const SearchModal = ({ isOpen, onClose }) => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleAddToCart = (product) => {
-    addToCart(product);
+  const handleProductClick = (product) => {
+    navigate(`/product/${product.id}`);
     onClose();
   };
 
@@ -93,7 +95,7 @@ const SearchModal = ({ isOpen, onClose }) => {
               {results.map((product) => (
                 <button
                   key={product.id}
-                  onClick={() => handleAddToCart(product)}
+                  onClick={() => handleProductClick(product)}
                   className="w-full flex items-center gap-4 px-6 py-3 hover:bg-gray-50 transition-colors text-left group"
                 >
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
@@ -112,7 +114,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                   <div className="text-right flex-shrink-0">
                     <p className="font-bold text-sm">USD {Number(product.price).toFixed(2)}</p>
                     <p className="text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      + Agregar
+                      Ver detalle
                     </p>
                   </div>
                 </button>
