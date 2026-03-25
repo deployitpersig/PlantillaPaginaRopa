@@ -10,8 +10,8 @@ const CategoryChart = ({ data }) => {
         <h3 className="text-lg font-bold">Ventas por Categoría</h3>
         <p className="text-sm text-gray-400">Distribución de ingresos por sección</p>
       </div>
-      <div className="flex-1 w-full min-h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full">
+        <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
               data={data}

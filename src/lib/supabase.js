@@ -25,15 +25,24 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 export const safeQuery = async (queryFn) => {
-  try {
+  const attempt = async (timeoutMs) => {
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Query timeout')), 8000)
+      setTimeout(() => reject(new Error('Query timeout')), timeoutMs)
     );
     const result = await Promise.race([queryFn(), timeoutPromise]);
     if (result.error) throw result.error;
     return { data: result.data, error: null };
-  } catch (error) {
-    console.error('Supabase query failed:', error.message);
-    return { data: null, error };
+  };
+
+  try {
+    return await attempt(20000); // 20s — covers Supabase free-tier cold starts
+  } catch (firstError) {
+    try {
+      console.warn('Supabase query retry after:', firstError.message);
+      return await attempt(25000); // retry once with 25s
+    } catch (retryError) {
+      console.error('Supabase query failed after retry:', retryError.message);
+      return { data: null, error: retryError };
+    }
   }
 };

@@ -8,8 +8,8 @@ const SalesChart = ({ data }) => {
         <h3 className="text-lg font-bold">Resumen de Ventas</h3>
         <p className="text-sm text-gray-400">Ingresos totales de los últimos 6 meses</p>
       </div>
-      <div className="flex-1 w-full min-h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full">
+        <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
